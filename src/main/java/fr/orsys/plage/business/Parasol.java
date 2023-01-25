@@ -1,0 +1,38 @@
+package fr.orsys.plage.business;
+
+import java.util.List;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.validation.constraints.NotNull;
+
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.FieldDefaults;
+
+@Entity
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
+public class Parasol {
+
+	@Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+	Long id;
+	
+	@NotNull(message = "Veuillez renseigner un numéro d'emplacement!")
+	byte numEmplacement;
+	
+	@ManyToOne
+	@NotNull
+	File file;
+	
+	@ManyToMany(mappedBy = "parasols")
+	List<Location> locations;
+}
