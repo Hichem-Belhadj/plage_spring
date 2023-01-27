@@ -8,6 +8,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 
 import org.hibernate.validator.constraints.Range;
 
@@ -24,15 +25,24 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class File {
 	
+	
+
 	@Id @GeneratedValue(strategy = GenerationType.IDENTITY)
 	Long id;
 	
 	@Range(min = 1, max = 8, message = "Le numéro de file doit être compris entre ${min} et ${max}")
 	byte numero;
 	
+
 	@Positive(message = "Veuillez renseigner un prix!")
 	double prixJournalier;
 	
 	@OneToMany(mappedBy = "file")
 	List<Parasol> parasols;
+	
+	//constructeur ajouté pour service
+	public File(Byte numero, double prixJournalier) {
+		this.numero=numero;
+		this.prixJournalier=prixJournalier;
+	}
 }

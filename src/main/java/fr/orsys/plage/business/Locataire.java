@@ -17,7 +17,7 @@ import lombok.experimental.FieldDefaults;
 @Entity
 @Getter
 @Setter
-@NoArgsConstructor
+
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Locataire extends Utilisateur {
 
@@ -32,4 +32,10 @@ public class Locataire extends Utilisateur {
 	@ManyToOne
 	@NotNull(message = "Veuillez indiquer votre pays !")
 	Pays pays;
+
+	public Locataire() {
+		dateHeureInscription=LocalDateTime.now();
+	}
+	
+	
 }
