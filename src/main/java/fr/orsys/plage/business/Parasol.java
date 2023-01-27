@@ -23,6 +23,8 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Parasol {
 
+	
+
 	@Id @GeneratedValue(strategy = GenerationType.IDENTITY)
 	Long id;
 	
@@ -35,4 +37,11 @@ public class Parasol {
 	
 	@ManyToMany(mappedBy = "parasols")
 	List<Location> locations;
+	
+	
+	//constructeur pour la classe ServiceParasolImpl
+	
+	public Parasol(byte numeroEmplacement) {
+		this.numEmplacement=numeroEmplacement;
+	}
 }

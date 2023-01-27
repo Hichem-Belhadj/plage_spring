@@ -6,4 +6,6 @@ import fr.orsys.plage.business.Statut;
 
 public interface StatutDao extends JpaRepository<Statut, Long> {
 
+	Statut findByNom(String nom);
+
 }

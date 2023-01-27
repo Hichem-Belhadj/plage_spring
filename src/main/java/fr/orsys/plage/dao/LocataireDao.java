@@ -6,4 +6,7 @@ import fr.orsys.plage.business.Locataire;
 
 public interface LocataireDao extends JpaRepository<Locataire, Long> {
 
+	Locataire findByEmail(String email);
+	
+	boolean existsByEmail(String email); 
 }
