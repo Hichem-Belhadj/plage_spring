@@ -14,6 +14,4 @@ public interface StatutService {
 	
 	boolean supprimerStatut(Long id);
 	
-	
-	
 }

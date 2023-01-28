@@ -1,8 +1,9 @@
-package fr.orsys.plage.service.serviceImpl;
+package fr.orsys.plage.service.impl;
 
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import fr.orsys.plage.business.LienDeParente;
 import fr.orsys.plage.dao.LienDeParenteDao;
@@ -12,10 +13,11 @@ import lombok.AllArgsConstructor;
 
 
 @Service
+@Transactional
 @AllArgsConstructor
 public class LienDeParenteServiceImpl implements LienDeParenteService {
 
-	private LienDeParenteDao lienDeParenteDao;
+	private final LienDeParenteDao lienDeParenteDao;
 	
 	//verifier qu il existe pas en base
 	@Override
@@ -38,12 +40,11 @@ public class LienDeParenteServiceImpl implements LienDeParenteService {
 		return lienDeParenteDao.findById(id).orElseThrow(
 				()->new NotExistingLienDeParenteException("Ce lien de parenté n'existe pas!"));
 	}
-
 	
 	@Override
 	public float coefficientParLienDeParente(String nom) {
 		LienDeParente lienDeParente=lienDeParenteDao.findByNom(nom);
-		if(lienDeParente==null) {
+		if (lienDeParente == null) {
 			throw new NotExistingLienDeParenteException("ce lien de parenté n'exite pas!");
 		}
 		return lienDeParente.getCoefficient();
@@ -65,7 +66,6 @@ public class LienDeParenteServiceImpl implements LienDeParenteService {
 			lienDeParenteAModifier.setNom(lienDeParente.getNom());
 			lienDeParenteAModifier.setCoefficient(lienDeParente.getCoefficient());
 			return lienDeParenteAModifier;
-			
 	}
 
 }

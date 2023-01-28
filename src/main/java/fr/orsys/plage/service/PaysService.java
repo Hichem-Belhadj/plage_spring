@@ -11,7 +11,7 @@ public interface PaysService {
 	List<Pays>recupererPays();
 	
 	boolean supprimerPays(String nom);
-	
-	
+
+	Pays ajouterPays(Pays pays);
 	
 }

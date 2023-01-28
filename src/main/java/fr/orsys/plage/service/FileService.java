@@ -17,8 +17,7 @@ public interface FileService {
 	boolean supprimerFile(Long id);
 	
 	File mettreAJourFile(byte numero,double nouveauPrixJournalier);
-	
-	
-	
+
+	void ajouterFile(File file);
 
 }

@@ -3,10 +3,13 @@ package fr.orsys.plage.business;
 import java.util.List;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -28,6 +31,7 @@ public class Pays {
 	@Size(max = 150)
 	String nom;
 	
-	@OneToMany(mappedBy = "pays")
+	@JsonManagedReference
+	@OneToMany(mappedBy = "pays", fetch = FetchType.EAGER)
 	List<Locataire> locataires;
 }

@@ -1,8 +1,9 @@
-package fr.orsys.plage.service.serviceImpl;
+package fr.orsys.plage.service.impl;
 
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import fr.orsys.plage.business.Concessionnaire;
 import fr.orsys.plage.dao.ConcessionnaireDao;
@@ -12,20 +13,19 @@ import lombok.AllArgsConstructor;
 
 @Service
 @AllArgsConstructor
+@Transactional
 public class ConcessionnaireServiceImpl implements ConcessionnaireService {
 
 	private ConcessionnaireDao concessionnaireDao;
 	
 	@Override
 	public Concessionnaire recupererConcessionnaire(Long id) {
-		Concessionnaire concessionnaire=concessionnaireDao.findById(id).orElseThrow(
+		return concessionnaireDao.findById(id).orElseThrow(
 				()->new NotExistingConcessionnaireException("Ce concessionnaire n'exite pas!"));
-		return concessionnaire;
 	}
 
 	@Override
 	public List<Concessionnaire> recupererConcessionnaires() {
-		
 		return concessionnaireDao.findAll();
 	}
 

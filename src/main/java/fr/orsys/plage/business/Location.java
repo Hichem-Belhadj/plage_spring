@@ -14,6 +14,10 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 
+import org.springframework.transaction.annotation.Transactional;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -24,6 +28,7 @@ import lombok.experimental.FieldDefaults;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Transactional
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Location {
 	
@@ -40,6 +45,7 @@ public class Location {
 	@Lob
 	String remarque;
 	
+	@JsonBackReference
 	@ManyToMany
 	@NotEmpty(message = "Veuillez choisir au moins un parassol !")
 	List<Parasol> parasols;
@@ -52,6 +58,7 @@ public class Location {
 	@NotNull
 	Statut statut;
 	
+	@JsonBackReference
 	@ManyToOne
 	@NotNull
 	Locataire locataire;

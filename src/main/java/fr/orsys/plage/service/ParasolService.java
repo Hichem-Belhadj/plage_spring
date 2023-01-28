@@ -2,6 +2,7 @@ package fr.orsys.plage.service;
 
 import java.util.List;
 
+import fr.orsys.plage.business.File;
 import fr.orsys.plage.business.Parasol;
 
 public interface ParasolService {
@@ -14,9 +15,10 @@ public interface ParasolService {
 	
 	Parasol recupererParasol(Long id);
 	
-	Parasol ajouterParasol(byte numeroEmplacement);
+	Parasol ajouterParasol(byte numeroEmplacement, File file);
 	
 	Parasol supprimerParasol(Long id);
-	
+
+	Parasol ajouterParasol(Parasol parasol);
 	
 }
