@@ -1,7 +1,10 @@
 package fr.orsys.plage.dto;
 
+import java.util.Set;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import fr.orsys.plage.business.Role;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,6 +17,8 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PROTECTED)
 public abstract class UtilisateurDto {
 	
+	Long id;
+	
 	String nom;
 	
 	String prenom;
@@ -22,4 +27,6 @@ public abstract class UtilisateurDto {
 	
 	@JsonIgnore
 	String motDePasse;
+	
+	Set<Role> roles;
 }

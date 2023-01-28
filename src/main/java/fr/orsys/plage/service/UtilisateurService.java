@@ -1,6 +1,9 @@
 package fr.orsys.plage.service;
 
 import java.util.List;
+import java.util.Map;
+
+import org.springframework.http.ResponseEntity;
 
 import fr.orsys.plage.business.Concessionnaire;
 import fr.orsys.plage.business.Locataire;
@@ -42,6 +45,16 @@ public interface UtilisateurService {
 	Utilisateur recupererUtilisateur(Long idUtilisateur);
 	
 	List<Utilisateur>recupererUtilisateurParType(String type);
+	
+	boolean supprimerUtilisateur(Long id);
+	
+	ResponseEntity<Map<String, Object>> recupererUtilisateurPagination(
+			int page,
+			int taille,
+			String filtrerPar,
+			String trierPar,
+			Utilisateur utilisateur
+	);
 	
 	//TODO recuperer utilisateur par type 
 	

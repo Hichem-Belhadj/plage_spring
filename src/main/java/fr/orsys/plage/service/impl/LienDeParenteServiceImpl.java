@@ -38,14 +38,14 @@ public class LienDeParenteServiceImpl implements LienDeParenteService {
 	public LienDeParente recupererLienDeParenteParId(Long id) {
 		
 		return lienDeParenteDao.findById(id).orElseThrow(
-				()->new NotExistingLienDeParenteException("Ce lien de parenté n'existe pas!"));
+				()->new NotExistingLienDeParenteException("Ce lien de parenté n'existe pas !"));
 	}
 	
 	@Override
 	public float coefficientParLienDeParente(String nom) {
 		LienDeParente lienDeParente=lienDeParenteDao.findByNom(nom);
 		if (lienDeParente == null) {
-			throw new NotExistingLienDeParenteException("ce lien de parenté n'exite pas!");
+			throw new NotExistingLienDeParenteException("ce lien de parenté n'exite pas !");
 		}
 		return lienDeParente.getCoefficient();
 	}
@@ -54,7 +54,7 @@ public class LienDeParenteServiceImpl implements LienDeParenteService {
 	public boolean supprimerLienDeParente(Long id) {
 		//si false modifier avec findById(id).get()
 		LienDeParente lienDeParente=lienDeParenteDao.findById(id).orElseThrow(
-				()->new NotExistingLienDeParenteException("Ce lien de parenté n'exite pas!"));
+				()->new NotExistingLienDeParenteException("Ce lien de parenté n'exite pas !"));
 		lienDeParenteDao.delete(lienDeParente);
 		return true;
 	}
@@ -62,7 +62,7 @@ public class LienDeParenteServiceImpl implements LienDeParenteService {
 	@Override
 	public LienDeParente modifierLienDeParente(Long id, LienDeParente lienDeParente) {
 		LienDeParente lienDeParenteAModifier=lienDeParenteDao.findById(id).orElseThrow(
-				()->new NotExistingLienDeParenteException("Ce lien de parenté n'exite pas!"));
+				()->new NotExistingLienDeParenteException("Ce lien de parenté n'exite pas !"));
 			lienDeParenteAModifier.setNom(lienDeParente.getNom());
 			lienDeParenteAModifier.setCoefficient(lienDeParente.getCoefficient());
 			return lienDeParenteAModifier;

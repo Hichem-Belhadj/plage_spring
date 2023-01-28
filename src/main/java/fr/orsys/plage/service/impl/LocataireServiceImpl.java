@@ -27,7 +27,6 @@ public class LocataireServiceImpl implements LocataireService{
 
 	@Override
 	public Locataire ajouterLocataire(Locataire locataire) {
-		// TODO Auto-generated method stub
 		return locataireDao.save(locataire);
 	}
 

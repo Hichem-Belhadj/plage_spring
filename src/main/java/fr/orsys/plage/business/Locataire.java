@@ -3,6 +3,7 @@ package fr.orsys.plage.business;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
@@ -26,7 +27,7 @@ public class Locataire extends Utilisateur {
 	LocalDateTime dateHeureInscription;
 	
 	@JsonManagedReference
-	@OneToMany(mappedBy = "locataire", fetch = FetchType.EAGER)
+	@OneToMany(mappedBy = "locataire", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
 	List<Location> locations;
 	
 	@ManyToOne

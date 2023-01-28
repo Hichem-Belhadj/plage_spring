@@ -43,7 +43,6 @@ public class PaysServiceImpl implements PaysService {
 
 	@Override
 	public Pays ajouterPays(Pays pays) {
-		// TODO Auto-generated method stub
 		return paysDao.save(pays);
 	}
 
