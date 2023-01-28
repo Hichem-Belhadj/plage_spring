@@ -9,5 +9,4 @@ public class PlageApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(PlageApplication.class, args);
 	}
-
 }

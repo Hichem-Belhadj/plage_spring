@@ -1,12 +1,20 @@
-package fr.orsys.plage.service.serviceImpl;
+package fr.orsys.plage.service.impl;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import fr.orsys.plage.business.Concessionnaire;
 import fr.orsys.plage.business.File;
@@ -24,12 +32,13 @@ import fr.orsys.plage.exception.NotAllowedLocationException;
 import fr.orsys.plage.exception.NotExistingFileException;
 import fr.orsys.plage.exception.NotExistingLocataireException;
 import fr.orsys.plage.exception.NotExistingLocationException;
-import fr.orsys.plage.exception.NotExistingParasolException;
 import fr.orsys.plage.exception.NotExistingStatutException;
+import fr.orsys.plage.exception.ParasolNotFoundException;
 import fr.orsys.plage.service.LocationService;
 import lombok.AllArgsConstructor;
 
 @Service
+@Transactional
 @AllArgsConstructor
 public class LocationServiceImpl implements LocationService {
 
@@ -37,24 +46,20 @@ public class LocationServiceImpl implements LocationService {
 	//possibilité d'affilier le statut 'a traiter' dans le constructeur
 	
 	// TODO trouver les location d'une file
-	
-	
-	private StatutDao statutDao;
-	private LocataireDao locataireDao;
-	private ParasolDao parasolDao;
-	private FileDao fileDao;
+
+	private final StatutDao statutDao;
+	private final LocataireDao locataireDao;
+	private final ParasolDao parasolDao;
+	private final FileDao fileDao;
 	
 	@Override
 	public List<Location> recupererLocations() {
-		
 		return locationDao.findAll();
 	}
 
-	
-
 	@Override
 	public Location modifierLocation(Long id, Location location) {
-		Location locationAModifier=locationDao.findById(id).orElseThrow(
+		Location locationAModifier = locationDao.findById(id).orElseThrow(
 			()->new NotExistingLocationException("location inexistante"));
 		locationAModifier.setDateHeureDebut(location.getDateHeureDebut());
 		locationAModifier.setDateHeureFin(location.getDateHeureFin());
@@ -65,16 +70,13 @@ public class LocationServiceImpl implements LocationService {
 
 	@Override
 	public List<Location> recupererLocations(LocalDateTime dateDebut,LocalDateTime dateFin) {
-		
 		return locationDao.findByIdBetween(dateDebut,dateFin);
-		
 	}
 
 	@Override
 	public List<Location> recupererLocations(Statut statut) {
-		if(statutDao.findByNom(statut.getNom())==null) {
-			throw new NotExistingStatutException("Ce statut n'existe pas!");
-			
+		if (statutDao.findByNom(statut.getNom())==null) {
+			throw new NotExistingStatutException("Ce statut n'existe pas !");
 		}
 		return locationDao.findByStatut(statut.getNom());
 	}
@@ -82,25 +84,22 @@ public class LocationServiceImpl implements LocationService {
 	@Override
 	public List<Location> recupererLocations(Locataire locataire) {
 		if(!locataireDao.existsByEmail(locataire.getEmail())) {
-			throw new NotExistingLocataireException("Ce locataire n'a pas de location!");
+			throw new NotExistingLocataireException("Ce locataire n'a pas de location !");
 		}
 		return locataire.getLocations();
 	}
 
 	@Override
 	public List<Location> recupererLocation(Long idParasol) {
-		Parasol parasol=parasolDao.findById(idParasol).get();
-		if(parasol==null) {
-			throw new NotExistingParasolException("Ce parasol n'existe pas!");
-		}
+		Parasol parasol = parasolDao.findById(idParasol).orElseThrow(
+				()->new ParasolNotFoundException("Ce parasol n'exite pas !"));
 		return parasol.getLocations();
 	}
 
 	@Override
 	public Location recuperererLocationById(Long id) {
-		Location location=locationDao.findById(id).orElseThrow(
+		return locationDao.findById(id).orElseThrow(
 				()->new NotExistingLocationException("Cette location n'existe pas!"));
-		return location;
 	}
 
 	@Override
@@ -111,10 +110,8 @@ public class LocationServiceImpl implements LocationService {
 
 	@Override
 	public double recupererMontantARegler(Long id) {
-		
-				Location location=locationDao.findById(id).orElseThrow(
-						()->new NotExistingLocationException("Cette location n'existe pas!"));
-				
+		Location location=locationDao.findById(id).orElseThrow(
+			()->new NotExistingLocationException("Cette location n'existe pas!"));
 		return location.getMontantARegler();
 	}
 
@@ -124,15 +121,13 @@ public class LocationServiceImpl implements LocationService {
 		Location location=locationDao.findById(id).orElseThrow(
 				()->new NotExistingLocationException("Cette location n'existe pas!"));
 		
-		if(location.getStatut().getNom()=="à traiter") {
+		if(location.getStatut().getNom().equals("à traiter")) {
 			location.setStatut(nouveauStatut);
 		}else {
-			throw new NotAllowedLocationException("impossible de passer au statut "+nouveauStatut.getNom());
+			throw new NotAllowedLocationException( String.format("impossible de passer au statut %s", nouveauStatut.getNom()));
 		}
 		return location;
 	}
-
-
 
 	@Override
 	public Location ajouterLocation(LocalDateTime dateHeureDebut, LocalDateTime dateHeureFin, double montantARegler,
@@ -146,13 +141,15 @@ public class LocationServiceImpl implements LocationService {
 		LocalDateTime dateMax=LocalDateTime.of(dateHeureDebut.getYear(),Month.SEPTEMBER,16,0,0);
 		
 		
-		if(dateHeureDebut.isBefore(dateHeureFin) ) {
-			if(dateHeureDebut.isAfter(dateMin) && dateHeureDebut.isBefore(dateMax) && dateHeureFin.isAfter(dateMin) && dateHeureFin.isBefore(dateMax)) {
+		if (dateHeureDebut.isBefore(dateHeureFin) ) {
+			if(dateHeureDebut.isAfter(dateMin) && dateHeureDebut.isBefore(dateMax)
+					&& dateHeureFin.isAfter(dateMin)
+					&& dateHeureFin.isBefore(dateMax)) {
 				location.setDateHeureDebut(dateHeureDebut);
 				location.setDateHeureDebut(dateHeureDebut);
 			}
-		}else {
-			throw new InvalidDateException("les dates saisies sont invalides");
+		} else {
+			throw new InvalidDateException("les dates saisies sont invalides !");
 		}
 		
 		//TODO voir si possibilité de calculer le montant a regler en fonction (trouver le nbre de parasol par file,multiplier le prix de la file (nbre de parasol) et on ajoute le prix de chaque file et sur le prix global on applique la reduction) 
@@ -166,31 +163,56 @@ public class LocationServiceImpl implements LocationService {
 		return locationDao.save(location);
 	}
 
-
-
 	@Override
 	public List<Location> recupererLocationParFile(Long idFile) {
 		File file=fileDao.findById(idFile).orElseThrow(
-				()->new NotExistingFileException("File introuvable!"));
-			List<Location> LocationList=new ArrayList<>();
-			for (Parasol parasol : file.getParasols()) {
-				for (Location location : parasol.getLocations()) {
-					if(LocationList.indexOf(location)<=0) {
-						LocationList.add(location);
-					}
+				()->new NotExistingFileException("File introuvable !"));
+		
+		List<Location> locationList = new ArrayList<>();
+		for (Parasol parasol : file.getParasols()) {
+			for (Location location : parasol.getLocations()) {
+				if (locationList.indexOf(location) <= 0) {
+					locationList.add(location);
 				}
-				
 			}
-		return LocationList;
-			
+		}
+		return locationList;
 	}
-
-
 
 	@Override
 	public List<Location> recupererLocationsParJour(LocalDateTime jour) {
-		
 		return null;
+	}
+
+	@Override
+	public Location ajouterLocation(Location location) {
+		// TODO Auto-generated method stub
+		return locationDao.save(location);
+	}
+
+	@Override
+	public ResponseEntity<Map<String, Object>> recupererLocationPagination(int page, int taille, String filtrerPar,
+			String trierPar) {
+		try {	    	
+	    	Pageable paging = filtrerPar.equals("desc") ?
+	    			PageRequest.of(page, taille, Sort.by(trierPar).descending()):
+	    			PageRequest.of(page, taille, Sort.by(trierPar).ascending());
+	    	Page<Location> pageLocation = locationDao.findAll(paging);
+	    	
+	    	List<Location> locations = pageLocation.getContent();
+	    	
+	    	Map<String, Object> response = new HashMap<>();
+	    	
+	    	response.put("locations", locations);
+	    	response.put("pageCourante", pageLocation.getNumber());
+	    	response.put("totalElements", pageLocation.getTotalElements());
+	    	response.put("totalPages", pageLocation.getTotalPages());
+	    	
+			return new ResponseEntity<>(response, HttpStatus.OK);
+	      
+	    } catch (Exception e) {
+	      return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+	    }
 	}
 
 }

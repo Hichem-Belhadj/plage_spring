@@ -12,6 +12,8 @@ public interface UtilisateurDao extends JpaRepository<Utilisateur, Long> {
 	
 	boolean existsByEmail(String email);
 	
+	Utilisateur findByEmail(String email);
+	
 	@Query(
 		
 			"""

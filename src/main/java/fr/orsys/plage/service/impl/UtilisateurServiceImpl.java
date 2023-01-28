@@ -1,25 +1,38 @@
-package fr.orsys.plage.service.serviceImpl;
+package fr.orsys.plage.service.impl;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import fr.orsys.plage.business.Concessionnaire;
 import fr.orsys.plage.business.Locataire;
+import fr.orsys.plage.business.Role;
 import fr.orsys.plage.business.Utilisateur;
+import fr.orsys.plage.dao.RoleDao;
 import fr.orsys.plage.dao.UtilisateurDao;
 import fr.orsys.plage.dto.UtilisateurDto;
 import fr.orsys.plage.exception.NotExistingUtilisateurException;
+import fr.orsys.plage.mapper.ConcessionnaireMapper;
+import fr.orsys.plage.mapper.LocataireMapper;
 import fr.orsys.plage.service.UtilisateurService;
 import lombok.AllArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 
 @Service
 @AllArgsConstructor
+@Transactional
+@Log4j2
 public class UtilisateurServiceImpl  implements UtilisateurService{
 
 	//supprimer utilisateur et verifier si il n'a pas de location a l'etat validé (exception)
-	private UtilisateurDao utilisateurDao;
+	private final UtilisateurDao utilisateurDao;
+	private final RoleDao roleDao;
+	private final PasswordEncoder passwordEncoder;
+	private LocataireMapper locataireMapper;
+	private ConcessionnaireMapper concessionnaireMapper;
+	
 	@Override
 	public Concessionnaire ajouterConcessionnaireDetail(String numeroDeTelephone, String nom, String prenom,
 			String email, String motDePasse) {
@@ -45,7 +58,6 @@ public class UtilisateurServiceImpl  implements UtilisateurService{
 
 	@Override
 	public Concessionnaire ajouterConcessionnaireDto(String numeroDeTelephone, UtilisateurDto utilisateurDto) {
-		
 		return null;
 	}
 
@@ -74,17 +86,14 @@ public class UtilisateurServiceImpl  implements UtilisateurService{
 
 	@Override
 	public Locataire ajouterLocataireDto( UtilisateurDto utilisateurDto) {
-		
 		return null;
 	}
 
 	@Override
 	public Utilisateur recupererUtilisateur(Long idUtilisateur) {
-		Utilisateur utilisateur=utilisateurDao.findById(idUtilisateur).orElseThrow(
+		return utilisateurDao.findById(idUtilisateur).orElseThrow(
 				()->new NotExistingUtilisateurException("Cet utilisateur n'existe pas!"));
-		return utilisateur;
 	}
-	
 
 	@Override
 	public List<Utilisateur> recupererTousUtilisateurs() {
@@ -98,8 +107,41 @@ public class UtilisateurServiceImpl  implements UtilisateurService{
 		return utilisateurDao.findUserByType(type);
 	}
 
+	@Override
+	public Utilisateur ajouterUtilisateur(Utilisateur utilisateur) {
+		utilisateur.setMotDePasse(passwordEncoder.encode(utilisateur.getMotDePasse()));
+		return utilisateurDao.save(utilisateur);
+	}
 
+	@Override
+	public void ajouterRoleAUtilisateur(Long userId, Long roleId) {
+		Utilisateur utilisateur = utilisateurDao.findById(userId).orElseThrow(
+				()->new NotExistingUtilisateurException("Cet utilisateur n'existe pas!"));
+		Role role = roleDao.findById(roleId).orElseThrow(
+				()->new NotExistingUtilisateurException("Ce rôle n'existe pas!"));
+		log.info("------------Ajout role {} à {}", role.getName(), utilisateur.getNom());
+		utilisateur.getRoles().add(role);
+		utilisateurDao.save(utilisateur);
+		
+	}
 
-	
+	@Override
+	public Utilisateur recupererUtilisateurParEmail(String email) {
+		Utilisateur utilisateur =  utilisateurDao.findByEmail(email);
+		if (utilisateur == null) {
+			throw new NotExistingUtilisateurException("Cet utilisateur n'existe pas!");
+		}
+		return utilisateur;
+	}
+
+	@Override
+	public UtilisateurDto recupererUtilisateurDto(Utilisateur utilisateur) {
+		if (utilisateur instanceof Locataire) {
+			return locataireMapper.toDto((Locataire)utilisateur);
+		} else if(utilisateur instanceof Concessionnaire) {
+			return concessionnaireMapper.toDto((Concessionnaire)utilisateur);
+		}
+		return null;
+	}
 
 }

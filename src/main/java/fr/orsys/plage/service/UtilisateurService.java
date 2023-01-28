@@ -1,6 +1,5 @@
 package fr.orsys.plage.service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import fr.orsys.plage.business.Concessionnaire;
@@ -10,6 +9,14 @@ import fr.orsys.plage.dto.UtilisateurDto;
 
 public interface UtilisateurService {
 	
+	/**
+	 * 
+	 *TODO: Pas besoin de de classe suplémentaire pour ajouter des Concessionnaires ou des locataires,
+	 * on peu utiliser la classe mère avec le principe de polymorphisme :
+	 * Utilisateur locataire = new Locataire(...args);
+	 * et tu utilise un setter pour les paramètres manquants : locataire.setDateInscription(date)
+	 * utilisateurService.ajouterUtilisateur(utilisateur)
+	 */
 	Concessionnaire ajouterConcessionnaireDetail(String numeroDeTelephone,String nom,String prenom,String email,String motDePasse);
 
 	Concessionnaire ajouterConcessionnaire(String numeroDeTelephone,Utilisateur utilisateur);
@@ -22,6 +29,14 @@ public interface UtilisateurService {
 	
 	Locataire ajouterLocataireDto(UtilisateurDto utilisateurDto);
 	
+	Utilisateur ajouterUtilisateur(Utilisateur utilisateur);
+	
+	Utilisateur recupererUtilisateurParEmail(String email);
+	
+	UtilisateurDto recupererUtilisateurDto(Utilisateur utilisateur);
+	
+	void ajouterRoleAUtilisateur(Long userId, Long roleId);
+	
 	List<Utilisateur> recupererTousUtilisateurs();
 	
 	Utilisateur recupererUtilisateur(Long idUtilisateur);
@@ -29,8 +44,5 @@ public interface UtilisateurService {
 	List<Utilisateur>recupererUtilisateurParType(String type);
 	
 	//TODO recuperer utilisateur par type 
-	
-
-	
 	
 }

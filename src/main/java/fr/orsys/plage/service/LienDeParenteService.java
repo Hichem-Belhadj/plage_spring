@@ -12,8 +12,6 @@ public interface LienDeParenteService {
 	
 	LienDeParente recupererLienDeParenteParId(Long id);
 	
-	
-	
 	float coefficientParLienDeParente(String nom);
 	
 	boolean supprimerLienDeParente(Long id);

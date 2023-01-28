@@ -10,5 +10,4 @@ public interface ParasolDao extends JpaRepository<Parasol, Long> {
 
 	List<Parasol>findByFileNumero(byte numero);
 	
-	
 }
