@@ -21,7 +21,7 @@ public class ConcessionnaireServiceImpl implements ConcessionnaireService {
 	@Override
 	public Concessionnaire recupererConcessionnaire(Long id) {
 		return concessionnaireDao.findById(id).orElseThrow(
-				()->new NotExistingConcessionnaireException("Ce concessionnaire n'exite pas!"));
+				()->new NotExistingConcessionnaireException("Ce concessionnaire n'exite pas !"));
 	}
 
 	@Override

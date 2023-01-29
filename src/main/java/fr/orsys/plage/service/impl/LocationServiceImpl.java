@@ -99,7 +99,7 @@ public class LocationServiceImpl implements LocationService {
 	@Override
 	public Location recuperererLocationById(Long id) {
 		return locationDao.findById(id).orElseThrow(
-				()->new NotExistingLocationException("Cette location n'existe pas!"));
+				()->new NotExistingLocationException("Cette location n'existe pas !"));
 	}
 
 	@Override
@@ -111,7 +111,7 @@ public class LocationServiceImpl implements LocationService {
 	@Override
 	public double recupererMontantARegler(Long id) {
 		Location location=locationDao.findById(id).orElseThrow(
-			()->new NotExistingLocationException("Cette location n'existe pas!"));
+			()->new NotExistingLocationException("Cette location n'existe pas !"));
 		return location.getMontantARegler();
 	}
 
@@ -119,7 +119,7 @@ public class LocationServiceImpl implements LocationService {
 	@Override
 	public Location modifierStatutLocation(Long id, Statut nouveauStatut) {
 		Location location=locationDao.findById(id).orElseThrow(
-				()->new NotExistingLocationException("Cette location n'existe pas!"));
+				()->new NotExistingLocationException("Cette location n'existe pas !"));
 		
 		if(location.getStatut().getNom().equals("à traiter")) {
 			location.setStatut(nouveauStatut);
@@ -186,7 +186,6 @@ public class LocationServiceImpl implements LocationService {
 
 	@Override
 	public Location ajouterLocation(Location location) {
-		// TODO Auto-generated method stub
 		return locationDao.save(location);
 	}
 
@@ -213,6 +212,11 @@ public class LocationServiceImpl implements LocationService {
 	    } catch (Exception e) {
 	      return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 	    }
+	}
+
+	@Override
+	public List<Location> recupererLocationsParlocataireEtStatut(Locataire locataire, String statut) {
+		return locationDao.findByLocataireAndStatutName(locataire, statut);
 	}
 
 }

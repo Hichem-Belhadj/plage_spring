@@ -27,21 +27,18 @@ public class FileServiceImpl implements FileService {
 	public File recupererFile(Long id) {
 
 		return fileDao.findById(id).orElseThrow(
-				()->new NotExistingFileException("Cette file est inexistante"));
+				()->new NotExistingFileException("Cette file est inexistante !"));
 	}
 
 	@Override
 	public File recupererFile(byte numero) {
-		
 		return fileDao.findByNumero(numero);
 	}
 
 	//travailler par setter et getter
 	@Override
 	public File ajouterFile(Byte numero, double prixJournalier) {
-		
 		return fileDao.save(new File(numero,prixJournalier));
-	
 	}
 
 	@Override

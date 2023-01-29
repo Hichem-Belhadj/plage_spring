@@ -39,7 +39,7 @@ public class SpringSecuriteConfig {
 		http.authorizeRequests(authorize -> authorize.
 	    		antMatchers(HttpMethod.GET, "/api/v1/login").permitAll()
 	    		.antMatchers(HttpMethod.GET, "/api/v1/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_USER")
-	    		.antMatchers(HttpMethod.POST, "/api/v1/user/**").hasAnyAuthority("ROLE_ADMIN")
+	    		.antMatchers(HttpMethod.POST, "/api/v1/utilisateur/**").hasAnyAuthority("ROLE_ADMIN")
 	    		.anyRequest().authenticated()
 	    );
 		http.addFilter(springAuthentificationConfig);

@@ -38,6 +38,8 @@ public interface LocationService {
 	
 	List<Location>recupererLocationsParJour(LocalDateTime jour);
 	
+	List<Location>recupererLocationsParlocataireEtStatut(Locataire locataire, String statut);
+	
 	Location recuperererLocationById(Long id);
 	
 	boolean supprimerLocation(Long id);

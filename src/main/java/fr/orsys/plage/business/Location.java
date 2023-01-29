@@ -7,13 +7,13 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 
+import org.hibernate.annotations.Type;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -42,7 +42,8 @@ public class Location {
 	@Positive(message = "Veuillez renseigner un prix!")
 	double montantARegler;
 	
-	@Lob
+	// @Lob
+	@Type(type = "org.hibernate.type.TextType") 
 	String remarque;
 	
 	@JsonBackReference
