@@ -53,7 +53,8 @@ public interface UtilisateurService {
 			int taille,
 			String filtrerPar,
 			String trierPar,
-			Utilisateur utilisateur
+			Utilisateur utilisateur,
+			String valeur
 	);
 	
 	//TODO recuperer utilisateur par type 

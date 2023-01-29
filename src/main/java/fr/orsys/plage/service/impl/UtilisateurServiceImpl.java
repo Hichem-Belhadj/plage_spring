@@ -158,7 +158,7 @@ public class UtilisateurServiceImpl  implements UtilisateurService{
 
 	@Override
 	public ResponseEntity<Map<String, Object>> recupererUtilisateurPagination(int page, int taille, String filtrerPar,
-			String trierPar, Utilisateur utilisateur) {
+			String trierPar, Utilisateur utilisateur, String valeur) {
 		
 		if ( utilisateur instanceof Locataire ) {
 			throw new UtilisateurNonAuthorise("Vous n'êtes pas authorisé à afficher ces donées !");
@@ -167,7 +167,7 @@ public class UtilisateurServiceImpl  implements UtilisateurService{
 			Pageable paging = trierPar.equals("desc") ?
 	    			PageRequest.of(page, taille, Sort.by(filtrerPar).descending()):
 	    			PageRequest.of(page, taille, Sort.by(filtrerPar).ascending());
-	    	Page<Utilisateur> pageLocation = utilisateurDao.findLocatairePagination(paging);
+	    	Page<Utilisateur> pageLocation = utilisateurDao.findLocatairePagination(paging, "%"+valeur+"%");
 	    	
 	    	List<Utilisateur> locataires = pageLocation.getContent();
 	    	

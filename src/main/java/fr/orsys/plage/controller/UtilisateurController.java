@@ -30,12 +30,13 @@ public class UtilisateurController {
 	        @RequestParam(defaultValue = "3") int taille,
 	        @RequestParam(defaultValue = "id") String filtrerPar,
 	        @RequestParam(defaultValue = "desc") String trierPar,
+	        @RequestParam(defaultValue = "") String valeur,
 	        Authentication authentication
 	      ) {
 		
 		String userEmail = authentication.getName();
 		Utilisateur utilisateur = utilisateurService.recupererUtilisateurParEmail(userEmail);
-		return utilisateurService.recupererUtilisateurPagination(page, taille, filtrerPar, trierPar, utilisateur);
+		return utilisateurService.recupererUtilisateurPagination(page, taille, filtrerPar, trierPar, utilisateur, valeur);
 	}
 	
 	@DeleteMapping("/supprimer/{id}")
