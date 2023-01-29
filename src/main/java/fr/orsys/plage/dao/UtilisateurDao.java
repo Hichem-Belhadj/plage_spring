@@ -30,12 +30,13 @@ public interface UtilisateurDao extends JpaRepository<Utilisateur, Long> {
 		LEFT JOIN l.roles lr
 		LEFT JOIN l.pays lp
 		WHERE lr.name = 'ROLE_USER'
+		AND LOWER(lp.nom)
+		LIKE LOWER(:valeur)
 		"""
 	)
-	Page<Utilisateur> findLocatairePagination(Pageable pageable);
+	Page<Utilisateur> findLocatairePagination(Pageable pageable, String valeur);
 	
 	@Query(
-		
 		"""
 		FROM Utilisateur
 		WHERE dtype=:dtype

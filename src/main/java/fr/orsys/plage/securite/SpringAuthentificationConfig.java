@@ -44,7 +44,7 @@ public class SpringAuthentificationConfig extends UsernamePasswordAuthentication
 
 		User user = (User)authResult.getPrincipal();
 		Algorithm algorithm = TokenAlgorithm.getTokenAlgorithm();
-		Date expireAt = new Date(System.currentTimeMillis() + 10*60*1000);
+		Date expireAt = new Date(System.currentTimeMillis() + 20*60*1000);
 		String accessToken = JWT.create()
 				.withSubject(user.getUsername())
 				.withExpiresAt(expireAt)

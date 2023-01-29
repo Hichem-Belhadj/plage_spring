@@ -251,6 +251,7 @@ public class AjoutDonneesInitiales implements CommandLineRunner {
 	
 	public void ajoutUtilisateurs() {
 		List<Pays> pays = paysService.recupererPays();
+		List<LienDeParente> liendeParenteList = lienDeParenteService.recupererLienDeParente();
 		Utilisateur concessionnaire = new Concessionnaire();
 		Utilisateur locataire = new Locataire();
 		Role roleConcessionnaire = new Role();
@@ -266,7 +267,8 @@ public class AjoutDonneesInitiales implements CommandLineRunner {
 		locataire.setEmail("cafir@hotmail.fr");
 		locataire.setMotDePasse("1234");
 		((Locataire)locataire).setPays(pays.get(random.nextInt(pays.size())));
-
+		((Locataire)locataire).setLienDeParente(liendeParenteList.get(random.nextInt(liendeParenteList.size())));
+		
 		roleConcessionnaire.setName(Roles.ROLE_ADMIN);
 		roleLocataire.setName(Roles.ROLE_USER);
 
