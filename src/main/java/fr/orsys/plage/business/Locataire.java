@@ -8,6 +8,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,12 +25,14 @@ public class Locataire extends Utilisateur {
 
 	LocalDateTime dateHeureInscription;
 	
+	@JsonIgnore
 	@OneToMany(mappedBy = "locataire")
 	List<Location> locations;
 	
 	@ManyToOne
 	LienDeParente lienDeParente;
 	
+	@JsonIgnore
 	@ManyToOne
 	@NotNull(message = "Veuillez indiquer votre pays !")
 	Pays pays;

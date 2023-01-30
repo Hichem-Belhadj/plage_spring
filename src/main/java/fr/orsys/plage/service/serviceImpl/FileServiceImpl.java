@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import fr.orsys.plage.business.File;
 import fr.orsys.plage.dao.FileDao;
+import fr.orsys.plage.exception.InvalidPrixJournalierException;
 import fr.orsys.plage.exception.NotExistingFileException;
 import fr.orsys.plage.service.FileService;
 import lombok.AllArgsConstructor;
@@ -38,7 +39,15 @@ public class FileServiceImpl implements FileService {
 	//travailler par setter et getter
 	@Override
 	public File ajouterFile(Byte numero, double prixJournalier) {
-		
+		File file=fileDao.findByNumero(numero);
+		if(file==null) {
+			throw new NotExistingFileException("Cette file n'existe pas");
+		}
+		File filePrecent=fileDao.findById(file.getId()-1).get();
+		if(prixJournalier<=filePrecent.getPrixJournalier() && filePrecent.getId()>=1) {
+			throw new InvalidPrixJournalierException("Le montant journalier est invalid");
+		}
+		file.setPrixJournalier(prixJournalier);
 		return fileDao.save(new File(numero,prixJournalier));
 	
 	}
@@ -55,6 +64,7 @@ public class FileServiceImpl implements FileService {
 	
 	}
 
+	
 	
 	@Override
 	public File mettreAJourFile(byte numero, double nouveauPrixJournalier) {

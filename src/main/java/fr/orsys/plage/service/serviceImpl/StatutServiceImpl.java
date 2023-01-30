@@ -2,6 +2,7 @@ package fr.orsys.plage.service.serviceImpl;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import fr.orsys.plage.business.Statut;
@@ -9,11 +10,13 @@ import fr.orsys.plage.dao.StatutDao;
 import fr.orsys.plage.exception.NotExistingStatutException;
 import fr.orsys.plage.service.StatutService;
 import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
 @Service
-@AllArgsConstructor
 public class StatutServiceImpl implements StatutService {
 
+
+	@Autowired
 	private StatutDao statutDao;
 	
 	
@@ -46,7 +49,24 @@ public class StatutServiceImpl implements StatutService {
 		if(statut==null) {
 			return false;
 		}
+		statutDao.delete(statut);
 		return true;
+	}
+
+	@Override
+	public Statut recupererStatutParId(Long id) {
+		
+		return statutDao.findById(id).orElseThrow(
+				()->new NotExistingStatutException("Ce statut est inexistant!"));
+	}
+
+	@Override
+	public Statut recupererStatutParNom(String nom) {
+		Statut statut=statutDao.findByNom(nom);
+		if(statut==null) {
+			throw new NotExistingStatutException("Ce statut n'exite pas!");
+		}
+		return statut;
 	}
 
 }

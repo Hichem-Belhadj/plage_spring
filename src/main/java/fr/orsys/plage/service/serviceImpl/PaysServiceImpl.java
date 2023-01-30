@@ -12,7 +12,6 @@ import lombok.AllArgsConstructor;
 
 @Service
 @AllArgsConstructor
-
 public class PaysServiceImpl implements PaysService {
 
 		private PaysDao paysDao;

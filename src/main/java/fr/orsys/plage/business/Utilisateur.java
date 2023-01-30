@@ -41,7 +41,7 @@ public abstract class Utilisateur {
 	
 	@Email(message = "Merci de préciser l'adresse email au bon format !")
 	@NotBlank(message = "Merci de préciser votre adresse email !")
-	@Column(unique = true)
+//	@Column(unique = true)
 	String email;
 	
 	@NotNull(message = "Veuillez renseigner votre mot de passe !")

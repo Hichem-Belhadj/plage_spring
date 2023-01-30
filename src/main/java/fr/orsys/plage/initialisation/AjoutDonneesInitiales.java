@@ -1,9 +1,8 @@
 package fr.orsys.plage.initialisation;
 
-import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -17,8 +16,6 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import com.github.javafaker.Faker;
-import com.github.javafaker.service.FakeValuesService;
-import com.github.javafaker.service.RandomService;
 
 import fr.orsys.plage.business.Concessionnaire;
 import fr.orsys.plage.business.File;
@@ -61,17 +58,17 @@ public class AjoutDonneesInitiales implements CommandLineRunner {
 	private final UtilisateurService utilisateurService;
 
 	private static Random random = new Random();
-	private static FakeValuesService fakeValuesService = new FakeValuesService(new Locale("fr-FR"),
-			new RandomService());
+//	private static FakeValuesService fakeValuesService = new FakeValuesService(new Locale("fr-FR"),
+//			new RandomService());
 	private static Faker faker = new Faker(new Locale("fr-FR"));
-	private static final String DATE_FORMATTER= "dd/MM/yyyy HH:mm:ss";
-	 private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern(DATE_FORMATTER);
+//	private static final String DATE_FORMATTER= "dd/MM/yyyy HH:mm:ss";
+	
 
 	@Override
 	public void run(String... args) throws Exception {
 		Date dateHeureDebut = new Date();
 		ajouterFiles();
-		ajouterParasols();
+
 		ajouterLiensDeParente();
 		ajouterPays();
 		ajouterStatutLocation();
@@ -85,16 +82,21 @@ public class AjoutDonneesInitiales implements CommandLineRunner {
 
 	}
 
+	/**
+	 * ajout fonction ajout location aléatoires
+	 */
 	private void ajouterLocation() {
 		if (locationDao.count() == 0) {
-
+			int NB_LOCATIONS=20;
+			int NB_PARASOLS=4;
+			
 			List<Utilisateur> utilisateurs = utilisateurDao.findAll();
 			List<Statut> statuts = statutDao.findAll();
 			List<Parasol> parasols = parasolDao.findAll();
 			List<Locataire> locataires = locataireDao.findAll();
 			List<Concessionnaire> concessionnaires = concessionnaireDao.findAll();
 
-			for (int index = 0; index < 20; index++) {
+			for (int index = 0; index < NB_LOCATIONS; index++) {
 
 				Location location = new Location();
 
@@ -103,11 +105,8 @@ public class AjoutDonneesInitiales implements CommandLineRunner {
 				Calendar calendar1 = new GregorianCalendar(2023, Calendar.JUNE, 01);
 				Date dateDebut = calendar1.getTime();
 //			System.out.println(dateDebut);
-
 				Calendar calendar2 = new GregorianCalendar(2023, Calendar.SEPTEMBER, 15);
 				Date dateFin = calendar2.getTime();
-
-//			System.out.println(calendar2.getTime());
 
 				Date dateAleatoire1 = faker.date().between(dateDebut, dateFin);
 				Date dateAleatoire2 = faker.date().between(dateDebut, dateFin);
@@ -118,11 +117,6 @@ public class AjoutDonneesInitiales implements CommandLineRunner {
 //					System.out.println(dateAleatoire2.before(dateAleatoire1));
 				} while (dateAleatoire2.before(dateAleatoire1));
 
-//				String pattern = "dd/MM/yyyy";
-//				SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
-//			System.out.println(simpleDateFormat.format(dateAleatoire1));
-//			System.out.println(simpleDateFormat.format(dateAleatoire2));
-				
 				
 				//conversion en LocalDateTime
 				LocalDateTime dateHeureDebut = LocalDateTime.ofInstant(dateAleatoire1.toInstant(),
@@ -130,39 +124,32 @@ public class AjoutDonneesInitiales implements CommandLineRunner {
 				LocalDateTime dateHeureFin = LocalDateTime.ofInstant(dateAleatoire2.toInstant(),
 						ZoneId.systemDefault());
 				
+				System.out.println("nbre d'heures de differences="+Duration.between(dateHeureDebut, dateHeureFin).toHours());
 				//conversion en string pour formater (dd/MM/yyyy)
-				DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_FORMATTER);
-				String dateHeureDebutFormate = dateHeureDebut.format(formatter);
-		        String dateHeureFinFormate = dateHeureFin.format(formatter);
+//				DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_FORMATTER);
+//				String dateHeureDebutFormate = dateHeureDebut.format(formatter);
+//		        String dateHeureFinFormate = dateHeureFin.format(formatter);
 		        
-		        //reconversion en LocalDateTime avec format(dd/MM/yyyy)
-		        LocalDateTime dateHeureDebutLocalDateTime=LocalDateTime.parse(dateHeureDebutFormate,FORMATTER);
-		        LocalDateTime dateHeureFinLocalDateTime=LocalDateTime.parse(dateHeureFinFormate,FORMATTER);
-		        System.out.println("date string===="+dateHeureDebutFormate);
-		        System.out.println(dateHeureDebutFormate.getClass().getSimpleName());
-		        System.out.println("date datetime===="+LocalDateTime.parse(dateHeureDebutFormate,FORMATTER));
-		        System.out.println(LocalDateTime.parse(dateHeureFinFormate,FORMATTER).getClass().getSimpleName());
-				
-
+		      
+			
 				// ajout 4 parasols
 				List<Parasol> listParasols = new ArrayList<>();
-				for (long i = 1; i < 4; i++) {
+				for (long i = 1; i < NB_PARASOLS; i++) {
+					
 					Parasol parasol = parasolDao.findById(i).get();
 					listParasols.add(parasol);
+					
 				}
-
 				// initialisation location
 
-				location.setDateHeureDebut(dateHeureDebutLocalDateTime);
-				location.setDateHeureFin(dateHeureFinLocalDateTime);
+				location.setDateHeureDebut(dateHeureDebut);
+				location.setDateHeureFin(dateHeureFin);
 				location.setMontantARegler(Math.round(random.nextDouble(30))+1);
 				location.setRemarque(faker.lorem().paragraph());
 				location.setStatut(statuts.get(random.nextInt(statuts.size())));
 				location.setLocataire(locataires.get(random.nextInt(locataires.size())));
 				location.setConcessionnaire(concessionnaires.get(random.nextInt(concessionnaires.size())));
 				location.setParasols(listParasols);
-
-				System.out.println("remarque========" + location.getRemarque());
 
 				// sauvegarde en base
 				locationDao.save(location);
@@ -171,11 +158,19 @@ public class AjoutDonneesInitiales implements CommandLineRunner {
 		}
 	}
 
+	/**
+	 * fonction d'ajout de locataire
+	 */
+	
 	private void ajouterLocataire() {
+		
 		if (locataireDao.count() == 0) {
+			
+			int NB_LOCATAIRES=10;
 			List<Pays> pays = paysDao.findAll();
 			List<LienDeParente> liendeParenteList = lienDeParenteDao.findAll();
-			for (int i = 0; i < 10; i++) {
+			for (int i = 0; i < NB_LOCATAIRES; i++) {
+				
 				Locataire locataire = new Locataire();
 				locataire.setNom(faker.name().lastName());
 				locataire.setPrenom(faker.name().firstName());
@@ -183,7 +178,6 @@ public class AjoutDonneesInitiales implements CommandLineRunner {
 				locataire.setMotDePasse(faker.internet().password(8, 16));
 				locataire.setPays(pays.get(random.nextInt(pays.size())));
 				locataire.setLienDeParente(liendeParenteList.get(random.nextInt(liendeParenteList.size())));
-				//LocalDateTime.ofInstant(dateAleatoire1.toInstant(),ZoneId.systemDefault());
 				locataire.setDateHeureInscription(LocalDateTime.ofInstant(faker.date().past(100, TimeUnit.DAYS).toInstant(), ZoneId.systemDefault()));
 				locataireDao.save(locataire);
 			}
@@ -191,16 +185,26 @@ public class AjoutDonneesInitiales implements CommandLineRunner {
 
 	}
 
+	/**
+	 * fonction d'ajout d'un concessionnaire
+	 */
 	private void ajouterConcessionnaire() {
+		
 		if (concessionnaireDao.count() == 0) {
+			
 			utilisateurService.ajouterConcessionnaireDetail("3912345678", faker.name().lastName(),
 					faker.name().firstName(), "peppe@orsys.fr", "12345678");
 		}
 
 	}
 
+	/**
+	 * fonction d'ajout des 3 statuts
+	 */
 	private void ajouterStatutLocation() {
+		
 		if (statutDao.count() == 0) {
+			
 			statutService.ajouterStatut("à traiter");
 			statutService.ajouterStatut("confirmée");
 			statutService.ajouterStatut("refusée");
@@ -208,9 +212,16 @@ public class AjoutDonneesInitiales implements CommandLineRunner {
 
 	}
 
+	/**
+	 * fonction d'ajout de 5 pays aléatoirement
+	 */
 	private void ajouterPays() {
+		
 		if (paysDao.count() == 0) {
-			for (int i = 0; i < 5; i++) {
+			
+			int NB_PAYS=5;
+			for (int i = 0; i < NB_PAYS; i++) {
+				
 				Pays pays = new Pays();
 				String code = faker.address().countryCode();
 				Locale L = new Locale("", code);
@@ -228,50 +239,58 @@ public class AjoutDonneesInitiales implements CommandLineRunner {
 	// mettre en parametre nom et coeff
 	// recupererLiendeparente
 
+	/**
+	 * fonction d'ajout de 3 liens de parenté
+	 */
 	private void ajouterLiensDeParente() {
-		// création du lien de parenté frère-soeur
+		
 		lienDeParenteService.ajouterLienDeParente("frere/soeur", (float) 0.05);
-		// création du lien de parenté cousin-cousine
 		lienDeParenteService.ajouterLienDeParente("cousin/cousine", (float) 0.025);
-		// création du lien de parenté aucun
 		lienDeParenteService.ajouterLienDeParente("aucun", 1);
 
 	}
 
-	private void ajouterParasols() {
-		if (parasolDao.count() == 0) {
-			Parasol parasol = new Parasol();
-		}
+	
 
-	}
-
-	// probleme avec le prix pour commencer
+	/**
+	 * fonction d'ajout de  8 files aléatoires et 9 parasoles par file
+	 */
 	private void ajouterFiles() {
+		
 		if (fileDao.count() == 0) {
-
+			
+			double prixMax=100;
+			double prixAleatoire=110;
+			
+			//boucle pour création des 8 files
 			for (byte i = 1; i <= 8; i++) {
+				
 				List<Parasol> fileParasolList = new ArrayList<>();
 				
-				File file = new File(i, random.nextInt(50) + 1);
+				do {
+					
+					prixAleatoire=30+random.nextInt(100);	
+					
+				}while(prixAleatoire>prixMax);
+				
+				prixMax=prixAleatoire;
+				File file = new File(i,prixAleatoire);
 				fileDao.save(file);
+				
+				//boucle pour création de 9 parasols par files
+				
 				for (byte j = 1; j <= 9; j++) {
+					
 					Parasol parasol = new Parasol();
-
 					parasol.setFile(file);
-
-					byte[] arr = { j, i };
-
-//					System.out.println(Arrays.toString(arr));
 					parasol.setNumEmplacement(j);
 					parasolDao.save(parasol);
 					fileParasolList.add(parasol);
 
-//					System.out.println(parasol);
-
 				}
 
 				file.setParasols(fileParasolList);
-
+				
 			}
 
 		}

@@ -10,6 +10,10 @@ public interface StatutService {
 	
 	List<Statut> recupererStatut();
 	
+	Statut recupererStatutParId(Long id);
+	
+	Statut recupererStatutParNom(String nom);
+	
 	Statut modifierStatut(Long id,Statut statut);
 	
 	boolean supprimerStatut(Long id);

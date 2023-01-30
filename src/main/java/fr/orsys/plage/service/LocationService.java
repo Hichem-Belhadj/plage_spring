@@ -1,6 +1,5 @@
 package fr.orsys.plage.service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -10,13 +9,16 @@ import fr.orsys.plage.business.Location;
 import fr.orsys.plage.business.Parasol;
 import fr.orsys.plage.business.Statut;
 
+
 public interface LocationService {
 	
 	List<Location>recupererLocations();
 	
 	// TODO liste de parasol et statut par rapport a une date
 	
-	Location ajouterLocation(LocalDateTime dateHeureDebut,LocalDateTime dateHeureFin,double montantARegler,String remarques,List<Parasol>parasols,Concessionnaire concessionnaire,Locataire locataire);
+	Location ajouterLocation(LocalDateTime dateHeureDebut,LocalDateTime dateHeureFin,String remarques,List<Parasol>parasols,Concessionnaire concessionnaire,Locataire locataire);
+	
+	Location ajouterLocation(Location location,Locataire locataire);
 	
 	Location modifierLocation(Long id,Location location);
 	

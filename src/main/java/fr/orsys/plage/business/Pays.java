@@ -8,6 +8,8 @@ import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -28,6 +30,7 @@ public class Pays {
 	@Size(max = 150)
 	String nom;
 	
+	@JsonIgnore
 	@OneToMany(mappedBy = "pays")
 	List<Locataire> locataires;
 }

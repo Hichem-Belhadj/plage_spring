@@ -11,6 +11,7 @@ import com.github.javafaker.File;
 
 import fr.orsys.plage.business.Locataire;
 import fr.orsys.plage.business.Location;
+import fr.orsys.plage.business.Statut;
 
 public interface LocationDao extends JpaRepository<Location, Long> {
 
@@ -19,7 +20,7 @@ public interface LocationDao extends JpaRepository<Location, Long> {
 	
 	List<Location>findByIdBetween(LocalDateTime dateHeureDebut,LocalDateTime dateHeureFin);
 	
-	List<Location>findByStatut(String statut);
+	List<Location>findByStatut(Statut statut);
 	
 	List<Location>findByLocataire(Locataire locataire);
 	
