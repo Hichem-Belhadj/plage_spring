@@ -25,7 +25,7 @@ public abstract class UtilisateurDto {
 	
 	String email;
 	
-	@JsonIgnore
+	//@JsonIgnore
 	String motDePasse;
 	
 	Set<Role> roles;

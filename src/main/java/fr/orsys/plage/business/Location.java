@@ -16,7 +16,8 @@ import javax.validation.constraints.Positive;
 import org.hibernate.annotations.Type;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -30,6 +31,9 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @Transactional
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@JsonIdentityInfo(
+		  generator = ObjectIdGenerators.PropertyGenerator.class, 
+		  property = "id")
 public class Location {
 	
 	@Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -46,7 +50,6 @@ public class Location {
 	@Type(type = "org.hibernate.type.TextType") 
 	String remarque;
 	
-	@JsonBackReference
 	@ManyToMany
 	@NotEmpty(message = "Veuillez choisir au moins un parassol !")
 	List<Parasol> parasols;
@@ -59,7 +62,6 @@ public class Location {
 	@NotNull
 	Statut statut;
 	
-	@JsonBackReference
 	@ManyToOne
 	@NotNull
 	Locataire locataire;

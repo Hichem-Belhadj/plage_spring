@@ -9,7 +9,9 @@ import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -22,6 +24,9 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@JsonIdentityInfo(
+		  generator = ObjectIdGenerators.PropertyGenerator.class, 
+		  property = "code")
 public class Pays {
 	
 	@Id
@@ -31,7 +36,8 @@ public class Pays {
 	@Size(max = 150)
 	String nom;
 	
-	@JsonManagedReference
 	@OneToMany(mappedBy = "pays", fetch = FetchType.EAGER)
+	@JsonIgnore
+	// @JsonManagedReference(value = "locataires_pays")
 	List<Locataire> locataires;
 }
