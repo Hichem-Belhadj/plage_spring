@@ -11,6 +11,7 @@ import fr.orsys.plage.business.Locataire;
 import fr.orsys.plage.business.Location;
 import fr.orsys.plage.business.Parasol;
 import fr.orsys.plage.business.Statut;
+import fr.orsys.plage.business.Utilisateur;
 
 public interface LocationService {
 	
@@ -52,7 +53,8 @@ public interface LocationService {
 			int page,
 			int taille,
 			String filtrerPar,
-			String trierPar
+			String trierPar,
+			Utilisateur utilisateur
 	);
 
 	Location ajouterLocation(Location location, Locataire locataire);

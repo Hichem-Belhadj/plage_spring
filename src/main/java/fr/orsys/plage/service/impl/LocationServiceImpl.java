@@ -23,6 +23,7 @@ import fr.orsys.plage.business.Locataire;
 import fr.orsys.plage.business.Location;
 import fr.orsys.plage.business.Parasol;
 import fr.orsys.plage.business.Statut;
+import fr.orsys.plage.business.Utilisateur;
 import fr.orsys.plage.dao.FileDao;
 import fr.orsys.plage.dao.LocataireDao;
 import fr.orsys.plage.dao.LocationDao;
@@ -34,9 +35,12 @@ import fr.orsys.plage.exception.NotExistingFileException;
 import fr.orsys.plage.exception.NotExistingLocataireException;
 import fr.orsys.plage.exception.NotExistingLocationException;
 import fr.orsys.plage.exception.NotExistingStatutException;
+import fr.orsys.plage.exception.NotExistingUtilisateurException;
 import fr.orsys.plage.exception.ParasolNotFoundException;
+import fr.orsys.plage.exception.UtilisateurNonAuthorise;
 import fr.orsys.plage.service.LocationService;
 import lombok.AllArgsConstructor;
+import lombok.extern.java.Log;
 
 @Service
 @Transactional
@@ -375,12 +379,20 @@ public class LocationServiceImpl implements LocationService {
 
 	@Override
 	public ResponseEntity<Map<String, Object>> recupererLocationPagination(int page, int taille, String filtrerPar,
-			String trierPar) {
-		try {	    	
-	    	Pageable paging = filtrerPar.equals("desc") ?
-	    			PageRequest.of(page, taille, Sort.by(trierPar).descending()):
-	    			PageRequest.of(page, taille, Sort.by(trierPar).ascending());
+			String trierPar, Utilisateur utilisateur) {
+		
+//		if ( utilisateur instanceof Locataire ) {
+//			throw new UtilisateurNonAuthorise("Vous n'êtes pas authorisé à afficher ces donées !");
+//		}
+		try {	
+			Pageable paging = trierPar.equals("desc") ?
+	    			PageRequest.of(page, taille, Sort.by(filtrerPar).descending()):
+	    			PageRequest.of(page, taille, Sort.by(filtrerPar).ascending());
 	    	Page<Location> pageLocation = locationDao.findAll(paging);
+	    	
+	    	if (utilisateur instanceof Locataire) {
+	    		pageLocation = locationDao.findLocationsByUtilisateurId(paging, utilisateur.getId());
+			}
 	    	
 	    	List<Location> locations = pageLocation.getContent();
 	    	

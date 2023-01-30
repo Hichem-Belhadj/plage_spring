@@ -16,9 +16,7 @@ import javax.validation.constraints.Positive;
 import org.hibernate.annotations.Type;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -64,7 +62,7 @@ public class Location {
 	@NotNull
 	Statut statut;
 	
-	@JsonIgnore
+	//@JsonIgnore
 	@ManyToOne
 	@NotNull
 	Locataire locataire;

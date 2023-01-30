@@ -185,6 +185,7 @@ public class UtilisateurServiceImpl  implements UtilisateurService{
 		if ( utilisateur instanceof Locataire ) {
 			throw new UtilisateurNonAuthorise("Vous n'êtes pas authorisé à afficher ces donées !");
 		}
+		page = valeur.equals("") ? page:0;
 		try {
 			Pageable paging = trierPar.equals("desc") ?
 	    			PageRequest.of(page, taille, Sort.by(filtrerPar).descending()):
@@ -192,7 +193,6 @@ public class UtilisateurServiceImpl  implements UtilisateurService{
 	    	Page<Utilisateur> pageLocation = utilisateurDao.findLocatairePagination(paging, "%"+valeur+"%");
 	    	
 	    	List<Utilisateur> locataires = pageLocation.getContent();
-	    	log.info("====================sxqxqxs{}",locataires.get(0));
 	    	
 	    	Map<String, Object> response = new HashMap<>();
 	    	

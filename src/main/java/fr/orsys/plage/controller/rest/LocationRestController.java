@@ -1,10 +1,12 @@
 package fr.orsys.plage.controller.rest;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.validation.Valid;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -26,7 +29,6 @@ import fr.orsys.plage.exception.NotAutorizedUtilisateurException;
 import fr.orsys.plage.exception.NotExistingLocataireException;
 import fr.orsys.plage.exception.NotExistingLocationException;
 import fr.orsys.plage.exception.NotExistingUtilisateurException;
-import fr.orsys.plage.service.LocataireService;
 import fr.orsys.plage.service.LocationService;
 import fr.orsys.plage.service.StatutService;
 import fr.orsys.plage.service.UtilisateurService;
@@ -40,7 +42,6 @@ public class LocationRestController {
 	private final LocationService locationService;
 	private final StatutService statutService;
 	private final UtilisateurService utilisateurService;
-	private final LocataireService locataireService;
 	
 	@GetMapping("reservations")
 	public List<Location>getLocations(Authentication authentification){
@@ -58,6 +59,20 @@ public class LocationRestController {
 			 throw new NotExistingUtilisateurException("Vous n'avez pas de compte, enregistrez vous!") ;
 		}
 		
+	}
+	
+	@GetMapping(value = "/reservations/page")
+	public ResponseEntity<Map<String, Object>> getLocationsPage(
+	        @RequestParam(defaultValue = "0") int page,
+	        @RequestParam(defaultValue = "3") int taille,
+	        @RequestParam(defaultValue = "id") String filtrerPar,
+	        @RequestParam(defaultValue = "desc") String trierPar,
+	        Authentication authentication
+	      ) {
+		
+		String userEmail = authentication.getName();
+		Utilisateur utilisateur = utilisateurService.recupererUtilisateurParEmail(userEmail);
+		return locationService.recupererLocationPagination(page, taille, filtrerPar, trierPar, utilisateur);
 	}
 	
 	@GetMapping("reservations/{id}")
