@@ -48,4 +48,20 @@ public class StatutServiceImpl implements StatutService {
 		return statut != null;
 	}
 
+	@Override
+	public Statut recupererStatutParId(Long id) {
+		
+		return statutDao.findById(id).orElseThrow(
+				()->new NotExistingStatutException("Ce statut est inexistant!"));
+	}
+
+	@Override
+	public Statut recupererStatutParNom(String nom) {
+		Statut statut=statutDao.findByNom(nom);
+		if(statut==null) {
+			throw new NotExistingStatutException("Ce statut n'exite pas!");
+		}
+		return statut;
+	}
+
 }

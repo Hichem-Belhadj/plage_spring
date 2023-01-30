@@ -45,9 +45,12 @@ public class SpringSecuriteConfig {
 		http.authorizeRequests(authorize -> authorize.
     		antMatchers(HttpMethod.GET, "/api/v1/login").permitAll()
     		.antMatchers(HttpMethod.GET, "/h2-console/**").permitAll()
+    		.antMatchers(HttpMethod.PATCH, "/api/v1/statut/**").permitAll()
     		.antMatchers(HttpMethod.POST, "/api/v1/utilisateur/ajout").permitAll()
     		.antMatchers(HttpMethod.GET, "/api/v1/utilisateur/lienDeParente").permitAll()
     		.antMatchers(HttpMethod.GET, "/api/v1/utilisateur/listePays").permitAll()
+    		.antMatchers(HttpMethod.GET, "/api/v1/reservations/**").permitAll()
+    		.antMatchers(HttpMethod.GET, "/api/v1/statut/**").permitAll()
     		.antMatchers(HttpMethod.GET, "/api/v1/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_USER")
     		.antMatchers(HttpMethod.POST, "/api/v1/utilisateur/**").hasAnyAuthority("ROLE_ADMIN")
     		.anyRequest().authenticated()

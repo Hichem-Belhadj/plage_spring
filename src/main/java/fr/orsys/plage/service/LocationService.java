@@ -54,4 +54,10 @@ public interface LocationService {
 			String filtrerPar,
 			String trierPar
 	);
+
+	Location ajouterLocation(Location location, Locataire locataire);
+
+
+	Location ajouterLocation(LocalDateTime dateHeureDebut, LocalDateTime dateHeureFin, String remarques,
+			List<Parasol> parasols, Concessionnaire concessionnaire, Locataire locataire);
 }

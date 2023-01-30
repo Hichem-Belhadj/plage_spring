@@ -10,13 +10,14 @@ import org.springframework.stereotype.Repository;
 
 import fr.orsys.plage.business.Locataire;
 import fr.orsys.plage.business.Location;
+import fr.orsys.plage.business.Statut;
 
 @Repository
 public interface LocationDao extends JpaRepository<Location, Long> {
 
 	List<Location>findByIdBetween(LocalDateTime dateHeureDebut,LocalDateTime dateHeureFin);
 	
-	List<Location>findByStatut(String statut);
+	List<Location>findByStatut(Statut statut);
 	
 	List<Location>findByLocataire(Locataire locataire);
 	

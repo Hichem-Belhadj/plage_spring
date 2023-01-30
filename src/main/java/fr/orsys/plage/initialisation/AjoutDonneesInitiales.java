@@ -75,14 +75,14 @@ public class AjoutDonneesInitiales implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 		Date dateHeureDebut = new Date();
-		ajouterFiles();
-		ajouterLiensDeParente();
-		ajouterPays();
-		ajouterStatutLocation();
-		ajouterConcessionnaire();
-		ajouterLocataire();
-		ajouterLocation();
-		ajoutUtilisateurs();
+//		ajouterFiles();
+//		ajouterLiensDeParente();
+//		ajouterPays();
+//		ajouterStatutLocation();
+//		ajouterConcessionnaire();
+//		ajouterLocataire();
+//		ajouterLocation();
+//		ajoutUtilisateurs();
 
 		Date dateHeureFin = new Date();
 		log.info("Données initiales ajoutées en {} ms",
@@ -253,21 +253,27 @@ public class AjoutDonneesInitiales implements CommandLineRunner {
 		List<Pays> pays = paysService.recupererPays();
 		List<LienDeParente> liendeParenteList = lienDeParenteService.recupererLienDeParente();
 		Utilisateur concessionnaire = new Concessionnaire();
+		Utilisateur concessionnaire1 = new Concessionnaire();
 		Utilisateur locataire = new Locataire();
 		Role roleConcessionnaire = new Role();
 		Role roleLocataire = new Role();
 
-		concessionnaire.setNom("BEL-HADJ");
-		concessionnaire.setPrenom("Hichem");
-		concessionnaire.setEmail("hichem.belhadj7@gmail.com");
-		concessionnaire.setMotDePasse("1234");
+//		concessionnaire.setNom("BEL-HADJ");
+//		concessionnaire.setPrenom("Hichem");
+//		concessionnaire.setEmail("hichem.belhadj7@gmail.com");
+//		concessionnaire.setMotDePasse("1234");
+//		
+//		concessionnaire.setNom("doe");
+//		concessionnaire.setPrenom("john");
+//		concessionnaire.setEmail("j.doe@gmail.com");
+//		concessionnaire.setMotDePasse("12345678");
 
-		locataire.setNom("Idoubrahim");
-		locataire.setPrenom("Chafek");
-		locataire.setEmail("cafir@hotmail.fr");
-		locataire.setMotDePasse("1234");
-		((Locataire)locataire).setPays(pays.get(random.nextInt(pays.size())));
-		((Locataire)locataire).setLienDeParente(liendeParenteList.get(random.nextInt(liendeParenteList.size())));
+//		locataire.setNom("Idoubrahim");
+//		locataire.setPrenom("Chafek");
+//		locataire.setEmail("cafir@hotmail.fr");
+//		locataire.setMotDePasse("12345678");
+//		((Locataire)locataire).setPays(pays.get(random.nextInt(pays.size())));
+//		((Locataire)locataire).setLienDeParente(liendeParenteList.get(random.nextInt(liendeParenteList.size())));
 		
 		roleConcessionnaire.setName(Roles.ROLE_ADMIN);
 		roleLocataire.setName(Roles.ROLE_USER);

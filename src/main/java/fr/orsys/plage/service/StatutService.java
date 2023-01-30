@@ -14,4 +14,8 @@ public interface StatutService {
 	
 	boolean supprimerStatut(Long id);
 	
+	Statut recupererStatutParId(Long id);
+
+	Statut recupererStatutParNom(String nom);
+	
 }
