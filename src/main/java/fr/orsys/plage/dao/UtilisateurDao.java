@@ -7,9 +7,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import fr.orsys.plage.business.Utilisateur;
 
+@Repository
 public interface UtilisateurDao extends JpaRepository<Utilisateur, Long> {
 	
 	boolean existsByEmail(String email);
@@ -25,10 +27,18 @@ public interface UtilisateurDao extends JpaRepository<Utilisateur, Long> {
 	 */
 	@Query( value =
 		"""
-		SELECT l, lp
+		SELECT new map(
+		l.id as id,
+		l.nom as nom,
+		l.prenom as prenom,
+		l.email as email,
+		l.dateHeureInscription as dateHeureInscription,
+		l.lienDeParente.nom as lienDeParente,
+		lp.nom as pays
+		)
 		FROM Locataire l
-		LEFT JOIN l.roles lr
-		LEFT JOIN l.pays lp
+		INNER JOIN l.pays lp
+		INNER JOIN l.roles lr
 		WHERE lr.name = 'ROLE_USER'
 		AND LOWER(lp.nom)
 		LIKE LOWER(:valeur)

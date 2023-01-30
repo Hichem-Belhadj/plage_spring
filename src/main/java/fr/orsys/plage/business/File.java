@@ -12,8 +12,6 @@ import javax.validation.constraints.Positive;
 
 import org.hibernate.validator.constraints.Range;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -33,11 +31,9 @@ public class File {
 	@Range(min = 1, max = 8, message = "Le numéro de file doit être compris entre ${min} et ${max}")
 	byte numero;
 	
-
 	@Positive(message = "Veuillez renseigner un prix!")
 	double prixJournalier;
 	
-	@JsonManagedReference
 	@OneToMany(mappedBy = "file", fetch = FetchType.EAGER)
 	List<Parasol> parasols;
 	

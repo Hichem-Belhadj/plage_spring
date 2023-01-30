@@ -29,6 +29,12 @@ public class SpringSecuriteConfig {
 
 	private final AuthenticationConfiguration authenticationConfiguration;
 	
+	/**
+	 * HttpSecurity http
+	 * @param http
+	 * @return
+	 * @throws Exception
+	 */
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		SpringAuthentificationConfig springAuthentificationConfig = new SpringAuthentificationConfig(authenticationManager(authenticationConfiguration));
@@ -37,15 +43,26 @@ public class SpringSecuriteConfig {
 		http.cors();
 		http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 		http.authorizeRequests(authorize -> authorize.
-	    		antMatchers(HttpMethod.GET, "/api/v1/login").permitAll()
-	    		.antMatchers(HttpMethod.GET, "/api/v1/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_USER")
-	    		.antMatchers(HttpMethod.POST, "/api/v1/utilisateur/**").hasAnyAuthority("ROLE_ADMIN")
-	    		.anyRequest().authenticated()
+    		antMatchers(HttpMethod.GET, "/api/v1/login").permitAll()
+    		.antMatchers(HttpMethod.GET, "/h2-console/**").permitAll()
+    		.antMatchers(HttpMethod.POST, "/api/v1/utilisateur/ajout").permitAll()
+    		.antMatchers(HttpMethod.GET, "/api/v1/utilisateur/lienDeParente").permitAll()
+    		.antMatchers(HttpMethod.GET, "/api/v1/utilisateur/listePays").permitAll()
+    		.antMatchers(HttpMethod.GET, "/api/v1/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_USER")
+    		.antMatchers(HttpMethod.POST, "/api/v1/utilisateur/**").hasAnyAuthority("ROLE_ADMIN")
+    		.anyRequest().authenticated()
 	    );
 		http.addFilter(springAuthentificationConfig);
 		http.addFilterBefore(new SpringAutorisationConfig(), UsernamePasswordAuthenticationFilter.class);
 		return http.build();
 	}
+	
+//	@Bean
+//	public void filterChain(WebSecurity web) throws Exception {
+//		web
+//        .ignoring()
+//        .antMatchers("/h2-console/**");
+//	}
 	
 	 @Bean
 	 public CorsConfigurationSource corsConfigurationSource() {

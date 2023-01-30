@@ -1,5 +1,6 @@
 package fr.orsys.plage.service.impl;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,18 +16,24 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import fr.orsys.plage.business.Concessionnaire;
+import fr.orsys.plage.business.LienDeParente;
 import fr.orsys.plage.business.Locataire;
 import fr.orsys.plage.business.Location;
+import fr.orsys.plage.business.Pays;
 import fr.orsys.plage.business.Role;
 import fr.orsys.plage.business.Utilisateur;
 import fr.orsys.plage.dao.RoleDao;
 import fr.orsys.plage.dao.UtilisateurDao;
+import fr.orsys.plage.dto.LocataireDto;
 import fr.orsys.plage.dto.UtilisateurDto;
+import fr.orsys.plage.enums.Roles;
 import fr.orsys.plage.exception.NotExistingUtilisateurException;
 import fr.orsys.plage.exception.UtilisateurNonAuthorise;
 import fr.orsys.plage.mapper.ConcessionnaireMapper;
 import fr.orsys.plage.mapper.LocataireMapper;
+import fr.orsys.plage.service.LienDeParenteService;
 import fr.orsys.plage.service.LocationService;
+import fr.orsys.plage.service.PaysService;
 import fr.orsys.plage.service.UtilisateurService;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -44,6 +51,8 @@ public class UtilisateurServiceImpl  implements UtilisateurService{
 	private LocataireMapper locataireMapper;
 	private ConcessionnaireMapper concessionnaireMapper;
 	private final LocationService locationService;
+	private final LienDeParenteService lienDeParenteService;
+	private final PaysService paysService;
 	
 	@Override
 	public Concessionnaire ajouterConcessionnaireDetail(String numeroDeTelephone, String nom, String prenom,
@@ -97,10 +106,23 @@ public class UtilisateurServiceImpl  implements UtilisateurService{
 	}
 
 	@Override
-	public Locataire ajouterLocataireDto( UtilisateurDto utilisateurDto) {
-		return null;
+	public Locataire ajouterLocataireDto(LocataireDto locataireDto) {
+		LienDeParente lienDeParente = lienDeParenteService.recupererLienDeParenteParId(locataireDto.getLienDeParente().getId());
+		Pays pays = paysService.recupererPaysParCode(locataireDto.getPays().getCode());
+		Role role = new Role();
+		role.setName(Roles.ROLE_USER);
+		role = roleDao.save(role);
+		
+		locataireDto.setLienDeParente(lienDeParente);
+		locataireDto.setPays(pays);
+		locataireDto.setDateHeureInscription(LocalDateTime.now());
+		
+		Utilisateur locataire = locataireMapper.toEntity(locataireDto);
+		locataire = this.ajouterUtilisateur(locataire);
+		this.ajouterRoleAUtilisateur(locataire.getId(), role.getId());  
+		return (Locataire) locataire;
 	}
-
+	
 	@Override
 	public Utilisateur recupererUtilisateur(Long idUtilisateur) {
 		return utilisateurDao.findById(idUtilisateur).orElseThrow(
@@ -170,6 +192,7 @@ public class UtilisateurServiceImpl  implements UtilisateurService{
 	    	Page<Utilisateur> pageLocation = utilisateurDao.findLocatairePagination(paging, "%"+valeur+"%");
 	    	
 	    	List<Utilisateur> locataires = pageLocation.getContent();
+	    	log.info("====================sxqxqxs{}",locataires.get(0));
 	    	
 	    	Map<String, Object> response = new HashMap<>();
 	    	

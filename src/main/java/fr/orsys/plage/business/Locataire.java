@@ -10,8 +10,9 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -22,19 +23,22 @@ import lombok.experimental.FieldDefaults;
 @Getter
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@JsonIdentityInfo(
+		  generator = ObjectIdGenerators.PropertyGenerator.class, 
+		  property = "id")
 public class Locataire extends Utilisateur {
 
 	LocalDateTime dateHeureInscription;
 	
-	@JsonManagedReference
 	@OneToMany(mappedBy = "locataire", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
 	List<Location> locations;
 	
 	@ManyToOne
 	LienDeParente lienDeParente;
 	
-	@JsonBackReference
 	@ManyToOne
+	//@JsonBackReference(value = "locataires_pays")
+	@JsonIgnore
 	@NotNull(message = "Veuillez indiquer votre pays !")
 	Pays pays;
 

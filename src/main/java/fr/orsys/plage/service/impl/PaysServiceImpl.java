@@ -46,4 +46,9 @@ public class PaysServiceImpl implements PaysService {
 		return paysDao.save(pays);
 	}
 
+	@Override
+	public Pays recupererPaysParCode(String code) {
+		return paysDao.findByCode(code);
+	}
+
 }

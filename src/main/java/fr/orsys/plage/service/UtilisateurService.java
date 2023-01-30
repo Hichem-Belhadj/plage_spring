@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import fr.orsys.plage.business.Concessionnaire;
 import fr.orsys.plage.business.Locataire;
 import fr.orsys.plage.business.Utilisateur;
+import fr.orsys.plage.dto.LocataireDto;
 import fr.orsys.plage.dto.UtilisateurDto;
 
 public interface UtilisateurService {
@@ -30,7 +31,7 @@ public interface UtilisateurService {
 	
 	Locataire ajouterLocataire(Utilisateur utilisateur);
 	
-	Locataire ajouterLocataireDto(UtilisateurDto utilisateurDto);
+	Locataire ajouterLocataireDto(LocataireDto locataireDto);
 	
 	Utilisateur ajouterUtilisateur(Utilisateur utilisateur);
 	

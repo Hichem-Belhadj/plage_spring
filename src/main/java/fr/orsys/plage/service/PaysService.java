@@ -13,5 +13,7 @@ public interface PaysService {
 	boolean supprimerPays(String nom);
 
 	Pays ajouterPays(Pays pays);
+
+	Pays recupererPaysParCode(String code);
 	
 }
