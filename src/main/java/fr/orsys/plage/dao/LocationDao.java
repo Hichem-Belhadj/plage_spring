@@ -45,11 +45,11 @@ public interface LocationDao extends JpaRepository<Location, Long> {
 
 	@Query( value =
 		"""
-		SELECT l
-		FROM Location l
-		INNER JOIN l.locataire lo
-		WHERE lo.id = :id
-		"""
+		SELECT l.id, u.nom, u.prenom FROM location l
+		JOIN utilisateur u ON u.id = l.locataire_id
+		WHERE u.id=:id
+		""",
+		nativeQuery = true
 	)
 	Page<Location> findLocationsByUtilisateurId(Pageable paging, Long id);
 	

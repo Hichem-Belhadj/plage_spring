@@ -52,7 +52,9 @@ public class SpringSecuriteConfig {
     		.antMatchers(HttpMethod.GET, "/api/v1/reservations/**").permitAll()
     		.antMatchers(HttpMethod.GET, "/api/v1/statut/**").permitAll()
     		.antMatchers(HttpMethod.GET, "/api/v1/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_USER")
+    		.antMatchers(HttpMethod.POST, "/api/v1/location/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_USER")
     		.antMatchers(HttpMethod.POST, "/api/v1/utilisateur/**").hasAnyAuthority("ROLE_ADMIN")
+    		.antMatchers(HttpMethod.GET, "/api/v1/reservations/parasolParStatut/**").hasAnyAuthority("ROLE_ADMIN")
     		.anyRequest().authenticated()
 	    );
 		http.addFilter(springAuthentificationConfig);

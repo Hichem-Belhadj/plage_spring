@@ -21,4 +21,6 @@ public interface ParasolService {
 
 	Parasol ajouterParasol(Parasol parasol);
 	
+	List<List<Integer>> recupererParasolParJourAvecEtatConfirme(String dateRecherche);
+	
 }

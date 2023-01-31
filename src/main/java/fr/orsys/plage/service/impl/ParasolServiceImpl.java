@@ -1,5 +1,7 @@
 package fr.orsys.plage.service.impl;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -67,6 +69,14 @@ public class ParasolServiceImpl implements ParasolService{
 	@Override
 	public Parasol ajouterParasol(Parasol parasol) {
 		return parasolDao.save(parasol);
+	}
+
+	@Override
+	public List<List<Integer>> recupererParasolParJourAvecEtatConfirme(String dateRecherche) {
+		String strDate = dateRecherche; //"2023-06-23 12:30"
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+		LocalDateTime dateHeure = LocalDateTime.parse(strDate, formatter);
+		return parasolDao.findByDateAndSatatutConfirme(dateHeure);
 	}
 
 }
