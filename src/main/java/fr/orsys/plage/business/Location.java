@@ -9,9 +9,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Positive;
 
 import org.hibernate.annotations.Type;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,7 +40,7 @@ public class Location {
 	
 	LocalDateTime dateHeureFin;
 	
-	@Positive(message = "Veuillez renseigner un prix!")
+	//@Positive(message = "Veuillez renseigner un prix!")
 	double montantARegler;
 	
 	// @Lob
@@ -51,7 +49,7 @@ public class Location {
 	
 	@JsonIgnore
 	@ManyToMany
-	@NotEmpty(message = "Veuillez choisir au moins un parassol !")
+	//@NotEmpty(message = "Veuillez choisir au moins un parassol !")
 	List<Parasol> parasols;
 	
 	@ManyToOne

@@ -1,5 +1,8 @@
 package fr.orsys.plage.controller.rest;
 
+import java.text.ParseException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 
@@ -30,6 +33,7 @@ import fr.orsys.plage.exception.NotExistingLocataireException;
 import fr.orsys.plage.exception.NotExistingLocationException;
 import fr.orsys.plage.exception.NotExistingUtilisateurException;
 import fr.orsys.plage.service.LocationService;
+import fr.orsys.plage.service.ParasolService;
 import fr.orsys.plage.service.StatutService;
 import fr.orsys.plage.service.UtilisateurService;
 import lombok.AllArgsConstructor;
@@ -42,6 +46,7 @@ public class LocationRestController {
 	private final LocationService locationService;
 	private final StatutService statutService;
 	private final UtilisateurService utilisateurService;
+	private final ParasolService parasolService;
 	
 	@GetMapping("reservations")
 	public List<Location>getLocations(Authentication authentification){
@@ -82,10 +87,7 @@ public class LocationRestController {
 		}else {
 			throw new NotExistingLocationException("Cette location n'exite pas!");
 		}
-	}
-	
-	
-	
+	}	
 	
 	//TODO mettre en request et verifier si concessionnaire
 	@GetMapping("reservations/locataire/{locataireId}")
@@ -98,22 +100,25 @@ public class LocationRestController {
 		}
 	}
 	
-	@GetMapping("reservations/statut/{idStatut}")
-	public List<Location> getLocationsByStatut(@PathVariable Long idStatut ) {
-		Statut statut=statutService.recupererStatutParId(idStatut);
-		if(locationService.recupererLocations(statut)!=null) {
-			return locationService.recupererLocations(statut);
-		}else {
-			throw new NotExistingLocationException("Aucune location pour le statut "+statut.getNom()+"!");
-		}
+//	@GetMapping("reservations/statut/{idStatut}")
+//	public List<Location> getLocationsByStatut(@PathVariable Long idStatut ) {
+//		Statut statut=statutService.recupererStatutParId(idStatut);
+//		if(locationService.recupererLocations(statut)!=null) {
+//			return locationService.recupererLocations(statut);
+//		}else {
+//			throw new NotExistingLocationException("Aucune location pour le statut "+statut.getNom()+"!");
+//		}
+//	}
+	
+	@GetMapping("reservations/parasol/statut")
+	public List<List<Integer>>getLocationsByStatut(@RequestParam String date) throws ParseException {
+		return parasolService.recupererParasolParJourAvecEtatConfirme(date);
 	}
 	
 	@PatchMapping("reservations/statut/{id}/{nouveauStatutId}")
 	@ResponseStatus(code=HttpStatus.OK)
 	public Location patchLocationStatut(@PathVariable Long id,@PathVariable Long nouveauStatutId) {
 		if(locationService.recuperererLocationById(id)!=null) {
-			
-			
 			Location location=locationService.recuperererLocationById(id);
 			Statut statut=statutService.recupererStatutParId(nouveauStatutId);
 			locationService.modifierStatutLocation(location.getId(), statut);
@@ -124,18 +129,44 @@ public class LocationRestController {
 		 
 	}
 	
-	
 	//TODO A FAIRE
+//	@PostMapping(value = "location")
+//	@ResponseStatus(code=HttpStatus.CREATED)
+//	public Location ajouterLocation(@RequestBody @Valid Location location, BindingResult result) {
+//
+//		if (result.hasErrors()) {
+//			return null;
+//		}
+//		else {
+//			return locationService.ajouterLocation(location, null);
+//		}
+//	}
+	
 	@PostMapping(value = "location")
 	@ResponseStatus(code=HttpStatus.CREATED)
-	public Location ajouterLocation(@RequestBody @Valid Location location, BindingResult result) {
+	public Location ajouterLocation(Authentication authentification, @RequestBody @Valid Location location, BindingResult result) throws ParseException {
+//		if (result.hasErrors()) {
+//			return null;
+//		}
+		
+		String userEmail=authentification.getName();
+		Utilisateur locataire=utilisateurService.recupererUtilisateurParEmail(userEmail);
 
-		if (result.hasErrors()) {
-			return null;
-		}
-		else {
-			return locationService.ajouterLocation(location, null);
-		}
+		String strDateDebut = location.getDateHeureDebut().toString();
+		String strDateFin = location.getDateHeureFin().toString();
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
+		LocalDateTime dateHeureDebut = LocalDateTime.parse(strDateDebut, formatter);
+		LocalDateTime dateHeureFin = LocalDateTime.parse(strDateFin, formatter);
+		location.setDateHeureDebut(dateHeureDebut);
+		location.setDateHeureFin(dateHeureFin);
+		location.setLocataire((Locataire)locataire);
+		
+		Statut statut = statutService.recupererStatutParNom("à traiter");
+		location.setStatut(statut);
+		
+		Utilisateur concessionnaire = utilisateurService.recupererUtilisateurParEmail("peppe@orsys.fr");
+		location.setConcessionnaire((Concessionnaire)concessionnaire);
+		return locationService.ajouterLocation(location);
 	}
 	
 	@ExceptionHandler(NotAutorizedUtilisateurException.class)
