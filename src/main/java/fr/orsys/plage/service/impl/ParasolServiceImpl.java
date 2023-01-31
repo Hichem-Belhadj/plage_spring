@@ -1,5 +1,11 @@
 package fr.orsys.plage.service.impl;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -12,7 +18,9 @@ import fr.orsys.plage.dao.LocationDao;
 import fr.orsys.plage.dao.ParasolDao;
 import fr.orsys.plage.exception.NotExistingLocationException;
 import fr.orsys.plage.exception.ParasolNotFoundException;
+import fr.orsys.plage.service.LocationService;
 import fr.orsys.plage.service.ParasolService;
+import fr.orsys.plage.util.GestionDate;
 import lombok.AllArgsConstructor;
 
 
@@ -23,6 +31,8 @@ public class ParasolServiceImpl implements ParasolService{
 
 	private final ParasolDao parasolDao;
 	private final LocationDao locationDao;
+	private final LocationService locationService;
+	
 	
 	@Override
 	public List<Parasol> recupererParasols() {
@@ -67,6 +77,81 @@ public class ParasolServiceImpl implements ParasolService{
 	@Override
 	public Parasol ajouterParasol(Parasol parasol) {
 		return parasolDao.save(parasol);
+	}
+
+	@Override
+	public List<Parasol> ajouterParasolALocation(List<Parasol> parasols, Location location) {
+		LocalDateTime dateDebut=location.getDateHeureDebut();
+		LocalDateTime dateFin=location.getDateHeureFin();
+		List<Parasol>parasolLocationPossible=new ArrayList<>();
+		List<Parasol>parasolLocationImPossible=new ArrayList<>();
+		
+		System.out.println("debuuuuuuuut"+dateDebut);
+		System.out.println("ffffffffffin"+dateFin);
+		for (Parasol parasol : parasols) {
+				System.out.println("parasollll="+parasol);
+			for (Location locationParasol : parasol.getLocations()) {
+				boolean parasolEstLoue=verifierSiParasolEstLouePlage(parasol, dateDebut, dateFin, locationParasol.getDateHeureDebut(), locationParasol.getDateHeureFin());
+				if(parasolEstLoue) {
+					parasolLocationImPossible.add(parasol);
+					
+				}else {
+					parasolLocationPossible.add(parasol);
+					
+				}
+				}
+			}
+			System.out.println(parasolLocationImPossible);
+			System.out.println(parasolLocationPossible);
+		return parasolLocationPossible;
+	}
+
+
+
+	@Override
+	public boolean verifierSiParasolEstLouePlage(Parasol parasol,LocalDateTime dateDebutLocation,LocalDateTime dateFinLocation, LocalDateTime dateDebutPlage, LocalDateTime dateFinPlage) {
+		List<Location>locations=parasol.getLocations();
+		
+		if(locations.isEmpty()) {
+			return false;
+		}else {
+			for (Location location : locations) {
+				GestionDate gestionDate=new GestionDate();
+				if(!gestionDate.verifierSiDateComprise(dateDebutPlage, dateFinLocation, dateDebutLocation)
+						&& !gestionDate.verifierSiDateComprise(dateDebutPlage, dateFinPlage, dateFinLocation)
+						&& (dateDebutLocation.isAfter(dateFinPlage)|| dateFinLocation.isBefore(dateDebutPlage)))
+						{
+					return false;
+				}
+					return true;
+				}
+			}
+			
+		
+		return false;
+	}
+
+	/**
+	 * permet de calculer le prix de la location 
+	 * @param Location location
+	 * @param LocalDateTime dateDebut
+	 * @param LocalDateTime dateFin
+	 */
+	@Override
+	public double calculPrixParasol(Location location, LocalDateTime dateDebut, LocalDateTime dateFin) {
+		
+		long nbreJoursLocation=ChronoUnit.DAYS.between(dateDebut, dateFin);
+		float coef=location.getLocataire().getLienDeParente().getCoefficient();
+		
+		List<Parasol>parasols=location.getParasols();
+		double montantJournalierTotalLocation=0;
+		double montantTotalLocation=0;
+		for (Parasol parasol : parasols) {
+			montantJournalierTotalLocation+=parasol.getFile().getPrixJournalier();
+		}
+		montantTotalLocation=montantJournalierTotalLocation*nbreJoursLocation;
+	
+		return  Math.round(montantTotalLocation)-(Math.round(montantTotalLocation)*coef);
 	}
 
 }
