@@ -12,6 +12,8 @@ import javax.validation.constraints.Positive;
 
 import org.hibernate.validator.constraints.Range;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -34,6 +36,7 @@ public class File {
 	@Positive(message = "Veuillez renseigner un prix!")
 	double prixJournalier;
 	
+	@JsonIgnore
 	@OneToMany(mappedBy = "file", fetch = FetchType.EAGER)
 	List<Parasol> parasols;
 	

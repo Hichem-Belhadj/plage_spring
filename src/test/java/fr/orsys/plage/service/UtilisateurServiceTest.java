@@ -1,11 +1,11 @@
 package fr.orsys.plage.service;
 
 import static org.junit.Assert.assertNotNull;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
-import org.hamcrest.collection.IsEmptyCollection;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -81,7 +81,8 @@ class UtilisateurServiceTest {
 	@DisplayName("Teste la suppression d'un utilisateur utilisateur")
 	@Order(4)
 	void testSupprimerUtilisateur() {
-		boolean estSupprime = utilisateurService.supprimerUtilisateur(1L);
+		Utilisateur utilAsupprimer = utilisateurService.recupererUtilisateur(1L);
+		boolean estSupprime = utilisateurService.supprimerUtilisateur(utilAsupprimer);
 		// Utilisateur utilisateur = utilisateurService.recupererUtilisateur(1L);
 		assertTrue(estSupprime);
 	}

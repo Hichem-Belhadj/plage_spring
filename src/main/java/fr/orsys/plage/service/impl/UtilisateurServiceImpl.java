@@ -18,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 import fr.orsys.plage.business.Concessionnaire;
 import fr.orsys.plage.business.LienDeParente;
 import fr.orsys.plage.business.Locataire;
-import fr.orsys.plage.business.Location;
 import fr.orsys.plage.business.Pays;
 import fr.orsys.plage.business.Role;
 import fr.orsys.plage.business.Utilisateur;
@@ -32,7 +31,6 @@ import fr.orsys.plage.exception.UtilisateurNonAuthorise;
 import fr.orsys.plage.mapper.ConcessionnaireMapper;
 import fr.orsys.plage.mapper.LocataireMapper;
 import fr.orsys.plage.service.LienDeParenteService;
-import fr.orsys.plage.service.LocationService;
 import fr.orsys.plage.service.PaysService;
 import fr.orsys.plage.service.UtilisateurService;
 import lombok.AllArgsConstructor;
@@ -50,7 +48,6 @@ public class UtilisateurServiceImpl  implements UtilisateurService{
 	private final PasswordEncoder passwordEncoder;
 	private LocataireMapper locataireMapper;
 	private ConcessionnaireMapper concessionnaireMapper;
-	private final LocationService locationService;
 	private final LienDeParenteService lienDeParenteService;
 	private final PaysService paysService;
 	
@@ -208,17 +205,9 @@ public class UtilisateurServiceImpl  implements UtilisateurService{
 	}
 
 	@Override
-	public boolean supprimerUtilisateur(Long id) {
-		Utilisateur utilisateur = recupererUtilisateur(id);
-		List<Location> locationConfirmee = locationService.recupererLocationsParlocataireEtStatut((Locataire)utilisateur, "confirmée");
-		
-		if (utilisateur==null || !locationConfirmee.isEmpty()) {
-			return false;
-		}
-		else {
-			utilisateurDao.delete(utilisateur);
-			return true;
-		}
+	public boolean supprimerUtilisateur(Utilisateur utilisateur) {
+		utilisateurDao.delete(utilisateur);
+		return true;
 	}
 
 }

@@ -21,25 +21,26 @@ import org.springframework.web.bind.annotation.RestController;
 
 import fr.orsys.plage.business.LienDeParente;
 import fr.orsys.plage.business.Locataire;
+import fr.orsys.plage.business.Location;
 import fr.orsys.plage.business.Pays;
 import fr.orsys.plage.business.Utilisateur;
 import fr.orsys.plage.dto.LocataireDto;
 import fr.orsys.plage.service.LienDeParenteService;
+import fr.orsys.plage.service.LocationService;
 import fr.orsys.plage.service.PaysService;
 import fr.orsys.plage.service.UtilisateurService;
 import lombok.AllArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 
 @RestController
 @RequestMapping("/api/v1/utilisateur")
 @CrossOrigin("http://localhost:4200")
 @AllArgsConstructor
-@Log4j2
 public class UtilisateurController {
 	
 	private final UtilisateurService utilisateurService;
 	private final LienDeParenteService lienDeParenteService;
 	private final PaysService paysService;
+	private final LocationService locationService;
 
 	@GetMapping(value = "/locataire")
 	public ResponseEntity<Map<String, Object>> getAllUsers(
@@ -68,7 +69,12 @@ public class UtilisateurController {
 	
 	@DeleteMapping("/supprimer/{id}")
 	public boolean supprimerUtilisateur(@PathVariable Long id) {
-		return utilisateurService.supprimerUtilisateur(id);
+		Utilisateur utilisateur = utilisateurService.recupererUtilisateur(id);
+		List<Location> locationConfirmee = locationService.recupererLocationsParlocataireEtStatut((Locataire)utilisateur, "confirmée");
+		if (utilisateur==null || !locationConfirmee.isEmpty()) {
+			return false;
+		}
+		return utilisateurService.supprimerUtilisateur(utilisateur);
 	}
 	
 	@PostMapping(value = "/ajout")

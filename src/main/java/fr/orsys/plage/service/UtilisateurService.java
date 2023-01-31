@@ -47,7 +47,7 @@ public interface UtilisateurService {
 	
 	List<Utilisateur>recupererUtilisateurParType(String type);
 	
-	boolean supprimerUtilisateur(Long id);
+	boolean supprimerUtilisateur(Utilisateur utilisateur);
 	
 	ResponseEntity<Map<String, Object>> recupererUtilisateurPagination(
 			int page,

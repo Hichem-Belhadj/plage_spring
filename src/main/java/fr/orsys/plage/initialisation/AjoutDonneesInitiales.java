@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import com.github.javafaker.Faker;
 
 import fr.orsys.plage.business.Concessionnaire;
+import fr.orsys.plage.business.DemandeReservation;
 import fr.orsys.plage.business.File;
 import fr.orsys.plage.business.LienDeParente;
 import fr.orsys.plage.business.Locataire;
@@ -31,6 +32,7 @@ import fr.orsys.plage.dao.PaysDao;
 import fr.orsys.plage.dao.StatutDao;
 import fr.orsys.plage.enums.Roles;
 import fr.orsys.plage.service.ConcessionnaireService;
+import fr.orsys.plage.service.DemandeReservationService;
 import fr.orsys.plage.service.FileService;
 import fr.orsys.plage.service.LienDeParenteService;
 import fr.orsys.plage.service.LocataireService;
@@ -66,6 +68,7 @@ public class AjoutDonneesInitiales implements CommandLineRunner {
 	private final PaysService paysService;
 	private final FileService fileService;
 	private final RoleService roleService;
+	private final DemandeReservationService demandeReservationService;
 
 	private static Random random = new Random();
 	private static Faker faker = new Faker(new Locale("fr-FR"));
@@ -83,12 +86,12 @@ public class AjoutDonneesInitiales implements CommandLineRunner {
 //		ajouterLocataire();
 //		ajouterLocation();
 //		ajoutUtilisateurs();
-
+		
 		Date dateHeureFin = new Date();
 		log.info("Données initiales ajoutées en {} ms",
 				String.valueOf(dateHeureFin.getTime() - dateHeureDebut.getTime()));
 	}
-
+	
 	private void ajouterLocation() throws ParseException {
 		if (locationDao.count() == 0) {
 
@@ -127,9 +130,12 @@ public class AjoutDonneesInitiales implements CommandLineRunner {
 				location.setLocataire(locataires.get(random.nextInt(locataires.size())));
 				location.setConcessionnaire(concessionnaires.get(random.nextInt(concessionnaires.size())));
 				location.setParasols(parasols);
+				List<DemandeReservation> demandeReservations = new ArrayList<>();
+				location.setDemandeReservations(demandeReservations);
 
 				// sauvegarde en base
 				locationService.ajouterLocation(location);
+				
 			}
 		}
 	}
@@ -261,7 +267,7 @@ public class AjoutDonneesInitiales implements CommandLineRunner {
 //		concessionnaire.setPrenom("Hichem");
 //		concessionnaire.setEmail("hichem.belhadj7@gmail.com");
 //		concessionnaire.setMotDePasse("1234");
-	
+		
 		concessionnaire.setNom("doe");
 		concessionnaire.setPrenom("john");
 		concessionnaire.setEmail("j.doe@gmail.com");

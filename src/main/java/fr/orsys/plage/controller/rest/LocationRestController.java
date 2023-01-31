@@ -1,8 +1,6 @@
 package fr.orsys.plage.controller.rest;
 
 import java.text.ParseException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 
@@ -26,15 +24,15 @@ import org.springframework.web.bind.annotation.RestController;
 import fr.orsys.plage.business.Concessionnaire;
 import fr.orsys.plage.business.Locataire;
 import fr.orsys.plage.business.Location;
-import fr.orsys.plage.business.Statut;
 import fr.orsys.plage.business.Utilisateur;
+import fr.orsys.plage.dto.LocationDto;
 import fr.orsys.plage.exception.NotAutorizedUtilisateurException;
 import fr.orsys.plage.exception.NotExistingLocataireException;
 import fr.orsys.plage.exception.NotExistingLocationException;
 import fr.orsys.plage.exception.NotExistingUtilisateurException;
+import fr.orsys.plage.mapper.LocationMapper;
 import fr.orsys.plage.service.LocationService;
 import fr.orsys.plage.service.ParasolService;
-import fr.orsys.plage.service.StatutService;
 import fr.orsys.plage.service.UtilisateurService;
 import lombok.AllArgsConstructor;
 
@@ -44,10 +42,16 @@ import lombok.AllArgsConstructor;
 public class LocationRestController {
 
 	private final LocationService locationService;
-	private final StatutService statutService;
 	private final UtilisateurService utilisateurService;
 	private final ParasolService parasolService;
-	
+	private final LocationMapper locationMapper;
+
+	/**
+	 * Cette fonction permet de récupérer la liste des location.
+	 * La liste sera complète pour le concessionnaire et individuelle pour les locataires
+	 * @param authentification permet d'autentifier l'autheur de la requette.
+	 * @return
+	 */
 	@GetMapping("reservations")
 	public List<Location>getLocations(Authentication authentification){
 		String userEmail=authentification.getName();
@@ -66,6 +70,15 @@ public class LocationRestController {
 		
 	}
 	
+	/**
+	 * Cette fonction permet de récupérer des <strong>pages de location</strong>
+	 * @param page
+	 * @param taille
+	 * @param filtrerPar
+	 * @param trierPar
+	 * @param authentication
+	 * @return
+	 */
 	@GetMapping(value = "/reservations/page")
 	public ResponseEntity<Map<String, Object>> getLocationsPage(
 	        @RequestParam(defaultValue = "0") int page,
@@ -80,95 +93,88 @@ public class LocationRestController {
 		return locationService.recupererLocationPagination(page, taille, filtrerPar, trierPar, utilisateur);
 	}
 	
+	/**
+	 * Cette fonction permet de récupérer les détails
+	 * d'une réservation en fonction de l'ID
+	 * @param id
+	 * @return
+	 */
 	@GetMapping("reservations/{id}")
-	public Location getLocationById(@PathVariable Long id) {
+	public LocationDto getLocationById(@PathVariable Long id) {
 		if(locationService.recuperererLocationById(id)!=null) {
-			return locationService.recuperererLocationById(id);
+			return locationMapper.toDto(locationService.recuperererLocationById(id));
 		}else {
 			throw new NotExistingLocationException("Cette location n'exite pas!");
 		}
 	}	
 	
-	//TODO mettre en request et verifier si concessionnaire
+	/**
+	 * Cette fonction permet de récupérer les information
+	 * d'un locataire en fonction de son ID
+	 * @param locataireId
+	 * @return
+	 */
 	@GetMapping("reservations/locataire/{locataireId}")
 	public List<Location>getLocationByLocataireId(@PathVariable Long locataireId){
 		Locataire locataire=(Locataire) utilisateurService.recupererUtilisateur(locataireId);
-		if(locataire instanceof Locataire && locataire!=null) {
+		if(locataire instanceof Locataire) {
 			return locationService.recupererLocations(locataire);
 		}else {
 			throw new NotExistingLocataireException("Ce locataire n'existe pas");
 		}
 	}
 	
-//	@GetMapping("reservations/statut/{idStatut}")
-//	public List<Location> getLocationsByStatut(@PathVariable Long idStatut ) {
-//		Statut statut=statutService.recupererStatutParId(idStatut);
-//		if(locationService.recupererLocations(statut)!=null) {
-//			return locationService.recupererLocations(statut);
-//		}else {
-//			throw new NotExistingLocationException("Aucune location pour le statut "+statut.getNom()+"!");
-//		}
-//	}
-	
+	/**
+	 * Cette fonction retourne la liste des parasol dont la réservation est confirmée
+	 * La fonction prends en paramètre la date recherchée
+	 * @param date
+	 * @return
+	 * @throws ParseException
+	 */
 	@GetMapping("reservations/parasol/statut")
-	public List<List<Integer>>getLocationsByStatut(@RequestParam String date) throws ParseException {
+	public List<List<Integer>>getLocationsByStatut(@RequestParam String date) {
 		return parasolService.recupererParasolParJourAvecEtatConfirme(date);
 	}
 	
-	@PatchMapping("reservations/statut/{id}/{nouveauStatutId}")
-	@ResponseStatus(code=HttpStatus.OK)
-	public Location patchLocationStatut(@PathVariable Long id,@PathVariable Long nouveauStatutId) {
-		if(locationService.recuperererLocationById(id)!=null) {
-			Location location=locationService.recuperererLocationById(id);
-			Statut statut=statutService.recupererStatutParId(nouveauStatutId);
-			locationService.modifierStatutLocation(location.getId(), statut);
-			return location;
-		}else {
-			throw new NotExistingLocationException("Cette location n'exite pas!");
-		}
-		 
-	}
-	
-	//TODO A FAIRE
-//	@PostMapping(value = "location")
-//	@ResponseStatus(code=HttpStatus.CREATED)
-//	public Location ajouterLocation(@RequestBody @Valid Location location, BindingResult result) {
-//
-//		if (result.hasErrors()) {
-//			return null;
-//		}
-//		else {
-//			return locationService.ajouterLocation(location, null);
-//		}
-//	}
-	
+	/**
+	 * Cette fonction permet de traiter les nouvelle réservation.
+	 * @param authentification
+	 * @param locationDto
+	 * @param result
+	 * @return
+	 * @throws ParseException
+	 */
 	@PostMapping(value = "location")
 	@ResponseStatus(code=HttpStatus.CREATED)
-	public Location ajouterLocation(Authentication authentification, @RequestBody @Valid Location location, BindingResult result) throws ParseException {
-//		if (result.hasErrors()) {
-//			return null;
-//		}
-		
-		String userEmail=authentification.getName();
-		Utilisateur locataire=utilisateurService.recupererUtilisateurParEmail(userEmail);
+	public Location ajouterLocation(Authentication authentification, @RequestBody @Valid LocationDto locationDto, BindingResult result) throws ParseException {
 
-		String strDateDebut = location.getDateHeureDebut().toString();
-		String strDateFin = location.getDateHeureFin().toString();
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
-		LocalDateTime dateHeureDebut = LocalDateTime.parse(strDateDebut, formatter);
-		LocalDateTime dateHeureFin = LocalDateTime.parse(strDateFin, formatter);
-		location.setDateHeureDebut(dateHeureDebut);
-		location.setDateHeureFin(dateHeureFin);
-		location.setLocataire((Locataire)locataire);
-		
-		Statut statut = statutService.recupererStatutParNom("à traiter");
-		location.setStatut(statut);
-		
-		Utilisateur concessionnaire = utilisateurService.recupererUtilisateurParEmail("peppe@orsys.fr");
-		location.setConcessionnaire((Concessionnaire)concessionnaire);
-		return locationService.ajouterLocation(location);
+		String userEmail=authentification.getName();
+		Utilisateur locataire=  utilisateurService.recupererUtilisateurParEmail(userEmail);
+		return locationService.traiterNouvelleReservation(locataire, locationDto);
 	}
 	
+	/**
+	 * Cette fonction permet de mettre à jours le statut de la location
+	 * après validation par le concessionnaire.
+	 * @param locationDto
+	 * @return
+	 */
+	@PatchMapping("reservations/parasol")
+	@ResponseStatus(code = HttpStatus.OK)
+	public Location patchLocationParasols(@RequestBody LocationDto locationDto) {
+		return locationService.MAJReservation(locationDto);
+	}
+	
+	@GetMapping(value = "/reservations/parasol/statut/duree")
+	public List<List<Integer>> recupererParasols(@RequestParam String dateDebut, @RequestParam String dateFin) {
+		return parasolService.recupererParasolDisponibleSurDuree(dateDebut, dateFin);
+	}
+	
+	/**
+	 * Exception sur les utilisateur non authorisés.
+	 * @param exception
+	 * @return
+	 */
 	@ExceptionHandler(NotAutorizedUtilisateurException.class)
 	@ResponseStatus(code=HttpStatus.UNAUTHORIZED)
 	public String traiterLocationInexitante(Exception exception) {

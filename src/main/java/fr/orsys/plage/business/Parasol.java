@@ -10,8 +10,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -24,9 +23,6 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@JsonIdentityInfo(
-		  generator = ObjectIdGenerators.PropertyGenerator.class, 
-		  property = "id")
 public class Parasol {
 
 	@Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,6 +35,7 @@ public class Parasol {
 	@NotNull
 	File file;
 	
+	@JsonIgnore
 	@ManyToMany(mappedBy = "parasols")
 	List<Location> locations;
 	
