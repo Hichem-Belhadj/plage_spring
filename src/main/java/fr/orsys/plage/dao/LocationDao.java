@@ -3,6 +3,8 @@ package fr.orsys.plage.dao;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -40,5 +42,15 @@ public interface LocationDao extends JpaRepository<Location, Long> {
 		"""
 	)
 	List<Location>findByLocataireAndStatutName(@Param("locataire")Locataire locataire, @Param("statut") String statut);
+
+	@Query( value =
+		"""
+		SELECT l
+		FROM Location l
+		INNER JOIN l.locataire lo
+		WHERE lo.id = :id
+		"""
+	)
+	Page<Location> findLocationsByUtilisateurId(Pageable paging, Long id);
 	
 }
