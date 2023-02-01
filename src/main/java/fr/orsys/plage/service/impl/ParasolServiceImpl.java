@@ -2,6 +2,7 @@ package fr.orsys.plage.service.impl;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -77,6 +78,37 @@ public class ParasolServiceImpl implements ParasolService{
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 		LocalDateTime dateHeure = LocalDateTime.parse(strDate, formatter);
 		return parasolDao.findByDateAndSatatutConfirme(dateHeure);
+	}
+
+	/**
+	 * permet de calculer le prix de la location 
+	 * @param Location location
+	 * @param LocalDateTime dateDebut
+	 * @param LocalDateTime dateFin
+	 */
+	@Override
+	public double calculPrixParasol(Location locationModifiee, LocalDateTime dateHeureDebut,
+			LocalDateTime dateHeureFin) {
+		long nbreJoursLocation=ChronoUnit.DAYS.between(dateHeureDebut, dateHeureFin);
+		float coef=locationModifiee.getLocataire().getLienDeParente().getCoefficient();
+		
+		List<Parasol>parasols=locationModifiee.getParasols();
+		double montantJournalierTotalLocation=0;
+		double montantTotalLocation=0;
+		for (Parasol parasol : parasols) {
+			montantJournalierTotalLocation+=parasol.getFile().getPrixJournalier();
+		}
+		montantTotalLocation=montantJournalierTotalLocation*nbreJoursLocation;
+	
+		return  Math.round(montantTotalLocation)-(Math.round(montantTotalLocation)*coef);
+	}
+
+	@Override
+	public List<List<Integer>> recupererParasolDisponibleSurDuree(String dateDebut, String dateFin) {
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+		LocalDateTime dateHeureDebut = LocalDateTime.parse(dateDebut, formatter);
+		LocalDateTime dateHeureFin = LocalDateTime.parse(dateFin, formatter);
+		return parasolDao.findByDateAndSatatutDisponible(dateHeureDebut, dateHeureFin);
 	}
 
 }

@@ -17,6 +17,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
@@ -43,9 +44,9 @@ public abstract class Utilisateur {
 	@Size(max = 150)
 	String prenom;
 	
-	 @Email(message = "Merci de préciser l'adresse email au bon format !")
+	@Email(message = "Merci de préciser l'adresse email au bon format !")
 	@NotBlank(message = "Merci de préciser votre adresse email !")
-	 @Column(unique = true)
+	@Column(unique = true)
 	String email;
 	
 	@NotNull(message = "Veuillez renseigner votre mot de passe !")
@@ -53,6 +54,7 @@ public abstract class Utilisateur {
 	@JsonProperty(access = Access.WRITE_ONLY)
 	String motDePasse;
 	
+	@JsonIgnore
 	@NotNull
 	@ManyToMany(fetch = FetchType.EAGER)
 	Set<Role> roles = new HashSet<>();

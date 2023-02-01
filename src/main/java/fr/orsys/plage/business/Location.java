@@ -3,12 +3,14 @@ package fr.orsys.plage.business;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.Type;
@@ -28,9 +30,6 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @Transactional
 @FieldDefaults(level = AccessLevel.PRIVATE)
-//@JsonIdentityInfo(
-//		  generator = ObjectIdGenerators.PropertyGenerator.class, 
-//		  property = "id")
 public class Location {
 	
 	@Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,27 +39,28 @@ public class Location {
 	
 	LocalDateTime dateHeureFin;
 	
-	//@Positive(message = "Veuillez renseigner un prix!")
 	double montantARegler;
 	
-	// @Lob
 	@Type(type = "org.hibernate.type.TextType") 
 	String remarque;
 	
 	@JsonIgnore
 	@ManyToMany
-	//@NotEmpty(message = "Veuillez choisir au moins un parassol !")
 	List<Parasol> parasols;
 	
 	@ManyToOne
 	@NotNull
 	Concessionnaire concessionnaire;
 	
+	@NotNull
+	@JsonIgnore
+	@OneToMany(mappedBy = "location", cascade = CascadeType.PERSIST)
+	List<DemandeReservation> demandeReservations;
+	
 	@ManyToOne
 	@NotNull
 	Statut statut;
 	
-	//@JsonIgnore
 	@ManyToOne
 	@NotNull
 	Locataire locataire;

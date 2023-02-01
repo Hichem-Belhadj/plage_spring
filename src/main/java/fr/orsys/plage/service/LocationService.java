@@ -14,6 +14,7 @@ import fr.orsys.plage.business.Location;
 import fr.orsys.plage.business.Parasol;
 import fr.orsys.plage.business.Statut;
 import fr.orsys.plage.business.Utilisateur;
+import fr.orsys.plage.dto.LocationDto;
 
 public interface LocationService {
 	
@@ -64,4 +65,8 @@ public interface LocationService {
 
 	Location ajouterLocation(LocalDateTime dateHeureDebut, LocalDateTime dateHeureFin, String remarques,
 			List<Parasol> parasols, Concessionnaire concessionnaire, Locataire locataire);
+
+	Location traiterNouvelleReservation(Utilisateur locataire, @Valid LocationDto locationDto);
+
+	Location MAJReservation(LocationDto locationDto);
 }

@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import fr.orsys.plage.business.Locataire;
 import fr.orsys.plage.business.Utilisateur;
 import fr.orsys.plage.dto.UtilisateurDto;
 import fr.orsys.plage.service.UtilisateurService;

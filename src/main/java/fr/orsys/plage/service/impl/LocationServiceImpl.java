@@ -3,11 +3,15 @@ package fr.orsys.plage.service.impl;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.Month;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.validation.Valid;
+
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -18,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import fr.orsys.plage.business.Concessionnaire;
+import fr.orsys.plage.business.DemandeReservation;
 import fr.orsys.plage.business.File;
 import fr.orsys.plage.business.Locataire;
 import fr.orsys.plage.business.Location;
@@ -29,18 +34,22 @@ import fr.orsys.plage.dao.LocataireDao;
 import fr.orsys.plage.dao.LocationDao;
 import fr.orsys.plage.dao.ParasolDao;
 import fr.orsys.plage.dao.StatutDao;
+import fr.orsys.plage.dto.LocationDto;
+import fr.orsys.plage.exception.EmptyLocationException;
 import fr.orsys.plage.exception.InvalidDateException;
 import fr.orsys.plage.exception.NotAllowedLocationException;
 import fr.orsys.plage.exception.NotExistingFileException;
 import fr.orsys.plage.exception.NotExistingLocataireException;
 import fr.orsys.plage.exception.NotExistingLocationException;
 import fr.orsys.plage.exception.NotExistingStatutException;
-import fr.orsys.plage.exception.NotExistingUtilisateurException;
 import fr.orsys.plage.exception.ParasolNotFoundException;
-import fr.orsys.plage.exception.UtilisateurNonAuthorise;
+import fr.orsys.plage.mapper.LocationMapper;
+import fr.orsys.plage.service.DemandeReservationService;
 import fr.orsys.plage.service.LocationService;
+import fr.orsys.plage.service.ParasolService;
+import fr.orsys.plage.service.StatutService;
+import fr.orsys.plage.service.UtilisateurService;
 import lombok.AllArgsConstructor;
-import lombok.extern.java.Log;
 
 @Service
 @Transactional
@@ -48,16 +57,15 @@ import lombok.extern.java.Log;
 public class LocationServiceImpl implements LocationService {
 
 	private LocationDao locationDao;
-	//possibilité d'affilier le statut 'a traiter' dans le constructeur
-	
-	// TODO trouver les location d'une file
-
 	private final StatutDao statutDao;
 	private final LocataireDao locataireDao;
 	private final ParasolDao parasolDao;
 	private final FileDao fileDao;
-	
-	
+	private final StatutService statutService;
+	private final UtilisateurService utilisateurService;
+	private final LocationMapper locationMapper;
+	private final DemandeReservationService demandeReservationService;
+	private final ParasolService parasolService;
 
 	/**
 	 * permet de recuperer toutes les locations
@@ -381,9 +389,6 @@ public class LocationServiceImpl implements LocationService {
 	public ResponseEntity<Map<String, Object>> recupererLocationPagination(int page, int taille, String filtrerPar,
 			String trierPar, Utilisateur utilisateur) {
 		
-//		if ( utilisateur instanceof Locataire ) {
-//			throw new UtilisateurNonAuthorise("Vous n'êtes pas authorisé à afficher ces donées !");
-//		}
 		try {	
 			Pageable paging = trierPar.equals("desc") ?
 	    			PageRequest.of(page, taille, Sort.by(filtrerPar).descending()):
@@ -426,6 +431,65 @@ public class LocationServiceImpl implements LocationService {
 	public Location ajouterLocation(Location location) {
 		
 		return locationDao.save(location);
+	}
+
+	@Override
+	public Location traiterNouvelleReservation(@Lazy Utilisateur locataire, @Valid LocationDto locationDto) {
+		
+		// Conversion de la date stockée dans le DTO
+		String strDateDebut = locationDto.getDateHeureDebut().toString();
+		String strDateFin = locationDto.getDateHeureFin().toString();
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
+		LocalDateTime dateHeureDebut = LocalDateTime.parse(strDateDebut, formatter);
+		LocalDateTime dateHeureFin = LocalDateTime.parse(strDateFin, formatter);
+		locationDto.setDateHeureDebut(dateHeureDebut);
+		locationDto.setDateHeureFin(dateHeureFin);
+		locationDto.setLocataire((Locataire)locataire);
+		
+		Statut statut = statutService.recupererStatutParNom("à traiter");
+		locationDto.setStatut(statut);
+		
+		Utilisateur concessionnaire = utilisateurService.recupererUtilisateurParEmail("peppe@orsys.fr");
+		locationDto.setConcessionnaire((Concessionnaire)concessionnaire);
+		
+		Location location = locationMapper.toEntity(locationDto); // locationService.ajouterLocation(location);
+		
+		List<DemandeReservation> demandeReservations = new ArrayList<>();
+		
+		if (location.getDemandeReservations() == null) {
+			throw new EmptyLocationException("Informations manquantes");
+		}
+		location = this.ajouterLocation(location);
+		
+		for (DemandeReservation demande: location.getDemandeReservations()) {
+			DemandeReservation demandeReservation = demandeReservationService.ajouterDemandeReservation(demande.getNumeroFile(), location);
+			demandeReservations.add(demandeReservation);
+		}
+		
+		location.setDemandeReservations(demandeReservations);
+		return location;
+	}
+
+	@Override
+	public Location MAJReservation(LocationDto locationDto) {
+		Location locationModifiee = this.recuperererLocationById(locationDto.getId());
+		List<Parasol> parasols = new ArrayList<>();
+		
+		Statut statut = statutService.recupererStatutParId(locationDto.getStatut().getId());
+		locationModifiee.setStatut(statut);
+		locationModifiee = this.ajouterLocation(locationModifiee);
+		
+		
+		for (Parasol parasol : locationDto.getParasols()) {
+			Parasol parasolAAjouter = parasolService.recupererParasol(parasol.getId());
+			parasols.add(parasolAAjouter);
+		}
+		
+		locationModifiee.setParasols(parasols);
+		double montantARegler = parasolService.calculPrixParasol(locationModifiee, locationModifiee.getDateHeureDebut(), locationModifiee.getDateHeureFin());
+		locationModifiee.setMontantARegler(montantARegler);
+
+		return locationModifiee;
 	}
 
 }

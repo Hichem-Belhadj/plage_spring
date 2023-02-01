@@ -1,8 +1,10 @@
 package fr.orsys.plage.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import fr.orsys.plage.business.File;
+import fr.orsys.plage.business.Location;
 import fr.orsys.plage.business.Parasol;
 
 public interface ParasolService {
@@ -22,5 +24,9 @@ public interface ParasolService {
 	Parasol ajouterParasol(Parasol parasol);
 	
 	List<List<Integer>> recupererParasolParJourAvecEtatConfirme(String dateRecherche);
+	
+	List<List<Integer>> recupererParasolDisponibleSurDuree(String dateDebut, String dateFin);
+
+	double calculPrixParasol(Location locationModifiee, LocalDateTime dateHeureDebut, LocalDateTime dateHeureFin);
 	
 }
